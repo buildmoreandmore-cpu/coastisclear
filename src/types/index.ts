@@ -100,6 +100,8 @@ export interface LookupResponse {
 
 export interface SearchState {
   step: number;
+  requestorName: string;
+  requestorCompany: string;
   newSongTitle: string;
   sampledSongTitle: string;
   originalArtist: string;
@@ -169,6 +171,8 @@ export interface PipelineSide {
 export interface PipelineItem {
   id: string;
   projectId?: string;
+  requestorName?: string;
+  requestorCompany?: string;
   newSongTitle: string;
   sampledSongTitle: string;
   originalArtist: string;

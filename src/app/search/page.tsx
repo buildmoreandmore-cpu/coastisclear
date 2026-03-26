@@ -84,6 +84,8 @@ function SearchPage() {
 
   const [state, setState] = useState<SearchState>({
     step: 0,
+    requestorName: "",
+    requestorCompany: "",
     newSongTitle: "",
     sampledSongTitle: initialSong,
     originalArtist: "",
@@ -133,7 +135,7 @@ function SearchPage() {
 
   // Auto-fire lookup when we reach scanning step
   useEffect(() => {
-    if (state.step === 8 && state.lookupStatus === "idle") {
+    if (state.step === 12 && state.lookupStatus === "idle") {
       runLookup();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -237,6 +239,8 @@ function SearchPage() {
     const results = state.lookupResults;
     const item: PipelineItem = {
       id: uuidv4(),
+      requestorName: state.requestorName || undefined,
+      requestorCompany: state.requestorCompany || undefined,
       newSongTitle: state.newSongTitle,
       sampledSongTitle: state.sampledSongTitle,
       originalArtist: state.originalArtist,
@@ -313,10 +317,50 @@ function SearchPage() {
 
   const renderStep = () => {
     switch (state.step) {
-      // Step 0: New song title
+      // ─── ABOUT YOU ───
+
+      // Step 0: Your name
       case 0:
         return (
           <StepContainer key={0}>
+            <TypedPrompt text="What's your name?" onComplete={onTypingComplete} />
+            {typingDone && (
+              <TextInput
+                ref={inputRef}
+                placeholder="e.g. Jordan Ellis"
+                onSubmit={(v) => handleTextSubmit("requestorName", v)}
+              />
+            )}
+          </StepContainer>
+        );
+
+      // Step 1: Company / label
+      case 1:
+        return (
+          <StepContainer key={1}>
+            <TypedPrompt text="What label or company are you with?" onComplete={onTypingComplete} />
+            {typingDone && (
+              <div className="mt-6 space-y-3">
+                <TextInput
+                  ref={inputRef}
+                  placeholder="e.g. Alien Music, Inc."
+                  onSubmit={(v) => handleTextSubmit("requestorCompany", v)}
+                />
+                <button
+                  onClick={nextStep}
+                  className="font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors"
+                >
+                  Independent — no label
+                </button>
+              </div>
+            )}
+          </StepContainer>
+        );
+
+      // Step 2: New song title
+      case 2:
+        return (
+          <StepContainer key={2}>
             <TypedPrompt text="What's the name of your new song?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -328,10 +372,51 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 1: Sampled song title
-      case 1:
+      // Step 3: Intended use
+      case 3:
         return (
-          <StepContainer key={1}>
+          <StepContainer key={3}>
+            <TypedPrompt text="What's this for?" onComplete={onTypingComplete} />
+            {typingDone && (
+              <OptionPills
+                options={USE_OPTIONS}
+                onSelect={(v) => {
+                  update({ intendedUse: v });
+                  nextStep();
+                }}
+              />
+            )}
+          </StepContainer>
+        );
+
+      // Step 4: Release context
+      case 4:
+        return (
+          <StepContainer key={4}>
+            <TypedPrompt text="Who's releasing this?" onComplete={onTypingComplete} />
+            {typingDone && (
+              <OptionPills
+                options={RELEASE_OPTIONS}
+                onSelect={(v) => {
+                  update({ releaseContext: v });
+                  if (v === "distributor" || v === "independent_label") {
+                    setTypingDone(false);
+                    update({ step: 4.5 } as any);
+                  } else {
+                    nextStep();
+                  }
+                }}
+              />
+            )}
+          </StepContainer>
+        );
+
+      // ─── ABOUT THE SAMPLE ───
+
+      // Step 5: Sampled song title
+      case 5:
+        return (
+          <StepContainer key={5}>
             <TypedPrompt text="What's the name of the song you're sampling?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -344,10 +429,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 2: Original artist
-      case 2:
+      // Step 6: Original artist
+      case 6:
         return (
-          <StepContainer key={2}>
+          <StepContainer key={6}>
             <TypedPrompt text="Who's the original artist?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -359,10 +444,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 3: Reference URL
-      case 3:
+      // Step 7: Reference URL
+      case 7:
         return (
-          <StepContainer key={3}>
+          <StepContainer key={7}>
             <TypedPrompt text="Can you drop a link to the original track?" onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-3">
@@ -382,10 +467,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 4: Original timing
-      case 4:
+      // Step 8: Original timing
+      case 8:
         return (
-          <StepContainer key={4}>
+          <StepContainer key={8}>
             <TypedPrompt
               text="Where in the original track does your sample start and end?"
               onComplete={onTypingComplete}
@@ -402,10 +487,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 5: New timing
-      case 5:
+      // Step 9: New timing
+      case 9:
         return (
-          <StepContainer key={5}>
+          <StepContainer key={9}>
             <TypedPrompt
               text="Where does this sample appear in your new track?"
               onComplete={onTypingComplete}
@@ -422,10 +507,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 6: Sample use description
-      case 6:
+      // Step 10: Sample use description + tags
+      case 10:
         return (
-          <StepContainer key={6}>
+          <StepContainer key={10}>
             <TypedPrompt text="Describe how you're using the sample." onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-4">
@@ -469,53 +554,13 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 7A: Intended use
-      case 7:
-        return (
-          <StepContainer key={7}>
-            <TypedPrompt text="What's this for?" onComplete={onTypingComplete} />
-            {typingDone && (
-              <OptionPills
-                options={USE_OPTIONS}
-                onSelect={(v) => {
-                  update({ intendedUse: v });
-                  // Go to release context step
-                  setTypingDone(false);
-                  update({ step: 7.5 } as any);
-                }}
-              />
-            )}
-          </StepContainer>
-        );
+      // Step 11: nextStep() advances to 11, which falls to default
 
-      // Step 7.5: Release context (implemented as step 7.5, rendered when step rounds)
       default:
-        if (state.step === 7.5) {
+        // Distributor sub-step
+        if (state.step === 4.5) {
           return (
-            <StepContainer key="7.5">
-              <TypedPrompt text="Who's releasing this?" onComplete={onTypingComplete} />
-              {typingDone && (
-                <OptionPills
-                  options={RELEASE_OPTIONS}
-                  onSelect={(v) => {
-                    update({ releaseContext: v });
-                    if (v === "distributor" || v === "independent_label") {
-                      setTypingDone(false);
-                      update({ step: 7.75 } as any);
-                    } else {
-                      setTypingDone(false);
-                      update({ step: 8 });
-                    }
-                  }}
-                />
-              )}
-            </StepContainer>
-          );
-        }
-
-        if (state.step === 7.75) {
-          return (
-            <StepContainer key="7.75">
+            <StepContainer key="4.5">
               <TypedPrompt text="Which one?" onComplete={onTypingComplete} />
               {typingDone && (
                 <TextInput
@@ -524,7 +569,7 @@ function SearchPage() {
                   onSubmit={(v) => {
                     update({ distributorName: v });
                     setTypingDone(false);
-                    update({ step: 8 });
+                    update({ step: 5 });
                   }}
                 />
               )}
@@ -532,10 +577,16 @@ function SearchPage() {
           );
         }
 
-        // Step 8: Scanning
-        if (state.step === 8 && state.lookupStatus !== "done") {
+        // Step 11 → auto-advance to scanning
+        if (state.step === 11) {
+          update({ step: 12 });
+          return null;
+        }
+
+        // Step 12: Scanning
+        if (state.step === 12 && state.lookupStatus !== "done") {
           return (
-            <StepContainer key={8}>
+            <StepContainer key={12}>
               <ScanningState
                 phases={[
                   "Searching internal rights database...",
@@ -544,25 +595,24 @@ function SearchPage() {
                 ]}
                 onComplete={() => {
                   if (state.lookupStatus === "done") {
-                    update({ step: 9 });
+                    update({ step: 13 });
                   }
-                  // If not done yet, the useEffect will handle transition
                 }}
               />
             </StepContainer>
           );
         }
 
-        // Step 9: Results
-        if (state.step === 8 && state.lookupStatus === "done") {
-          update({ step: 9 });
+        if (state.step === 12 && state.lookupStatus === "done") {
+          update({ step: 13 });
           return null;
         }
 
-        if (state.step === 9) {
+        // Step 13: Results
+        if (state.step === 13) {
           const results = state.lookupResults;
           return (
-            <StepContainer key={9}>
+            <StepContainer key={13}>
               <TypedPrompt
                 text={`Here's what we found for "${state.sampledSongTitle}" by ${state.originalArtist}.`}
                 onComplete={onTypingComplete}
@@ -663,7 +713,7 @@ function SearchPage() {
               </p>
               <button
                 onClick={() => {
-                  update({ lookupStatus: "idle", step: 8 });
+                  update({ lookupStatus: "idle", step: 12 });
                 }}
                 className="mt-4 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg"
               >
@@ -682,7 +732,7 @@ function SearchPage() {
       <div className="w-full max-w-2xl">
         {/* Progress dots */}
         <div className="flex gap-1.5 justify-center mb-12">
-          {Array.from({ length: 10 }, (_, i) => (
+          {Array.from({ length: 13 }, (_, i) => (
             <div
               key={i}
               className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
