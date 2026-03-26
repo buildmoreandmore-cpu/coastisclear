@@ -448,7 +448,7 @@ function SearchPage() {
                   ref={textareaRef}
                   placeholder='e.g. "The main melody loops throughout the chorus"'
                   rows={3}
-                  className="w-full bg-transparent border border-[var(--border-active)] rounded-lg px-5 py-3 font-mono text-sm text-white placeholder:text-[var(--text-dim)] focus:outline-none focus:border-white transition-colors resize-none"
+                  className="w-full bg-transparent border-none outline-none font-mono text-lg text-white placeholder:text-[var(--text-dim)] caret-white resize-none"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -757,9 +757,8 @@ const TextInput = forwardRef<
             onSubmit(value);
           }
         }}
-        className="w-full bg-transparent border border-[var(--border-active)] rounded-lg px-5 py-4 font-mono text-base text-white placeholder:text-[var(--text-dim)] focus:outline-none focus:border-white transition-colors"
+        className="w-full bg-transparent border-none outline-none font-mono text-lg text-white placeholder:text-[var(--text-dim)] caret-white"
       />
-      <p className="font-mono text-xs text-[var(--text-dim)] mt-2">Press Enter to continue</p>
     </div>
   );
 });
@@ -783,7 +782,8 @@ function TimingInput({
           value={start}
           onChange={(e) => setStart(e.target.value)}
           placeholder="0:04"
-          className="w-24 bg-transparent border border-[var(--border-active)] rounded-lg px-4 py-3 font-mono text-base text-white text-center placeholder:text-[var(--text-dim)] focus:outline-none focus:border-white transition-colors"
+          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-white text-center placeholder:text-[var(--text-dim)] caret-white border-b border-b-[var(--text-dim)]"
+          style={{ borderBottom: '1px solid var(--text-dim)' }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === "Tab") {
               e.preventDefault();
@@ -798,7 +798,8 @@ function TimingInput({
           value={end}
           onChange={(e) => setEnd(e.target.value)}
           placeholder="0:12"
-          className="w-24 bg-transparent border border-[var(--border-active)] rounded-lg px-4 py-3 font-mono text-base text-white text-center placeholder:text-[var(--text-dim)] focus:outline-none focus:border-white transition-colors"
+          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-white text-center placeholder:text-[var(--text-dim)] caret-white"
+          style={{ borderBottom: '1px solid var(--text-dim)' }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
