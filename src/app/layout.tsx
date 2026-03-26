@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Syne, DM_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
 const syne = Syne({
@@ -32,6 +33,28 @@ export default function RootLayout({
       <body
         className={`${syne.variable} ${dmMono.variable} antialiased`}
       >
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
+          <Link
+            href="/"
+            className="font-mono text-sm font-medium text-[var(--text)] hover:opacity-60 transition-opacity tracking-wide"
+          >
+            clear
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/about"
+              className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
+            >
+              about
+            </Link>
+            <Link
+              href="/login"
+              className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
+            >
+              login
+            </Link>
+          </div>
+        </nav>
         {children}
       </body>
     </html>
