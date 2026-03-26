@@ -317,12 +317,45 @@ function SearchPage() {
 
   const renderStep = () => {
     switch (state.step) {
-      // ─── ABOUT YOU ───
+      // ─── ABOUT THE SAMPLE ───
 
-      // Step 0: Your name
+      // Step 0: Sampled song title (first question)
       case 0:
         return (
           <StepContainer key={0}>
+            <TypedPrompt text="What's the name of the song you're sampling?" onComplete={onTypingComplete} />
+            {typingDone && (
+              <TextInput
+                ref={inputRef}
+                defaultValue={state.sampledSongTitle}
+                placeholder='e.g. "Think" — James Brown'
+                onSubmit={(v) => handleTextSubmit("sampledSongTitle", v)}
+              />
+            )}
+          </StepContainer>
+        );
+
+      // Step 1: Original artist
+      case 1:
+        return (
+          <StepContainer key={1}>
+            <TypedPrompt text="Who's the original artist?" onComplete={onTypingComplete} />
+            {typingDone && (
+              <TextInput
+                ref={inputRef}
+                placeholder="e.g. James Brown"
+                onSubmit={(v) => handleTextSubmit("originalArtist", v)}
+              />
+            )}
+          </StepContainer>
+        );
+
+      // ─── ABOUT YOU ───
+
+      // Step 2: Your name
+      case 2:
+        return (
+          <StepContainer key={2}>
             <TypedPrompt text="What's your name?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -334,10 +367,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 1: Company / label
-      case 1:
+      // Step 3: Company / label
+      case 3:
         return (
-          <StepContainer key={1}>
+          <StepContainer key={3}>
             <TypedPrompt text="What label or company are you with?" onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-3">
@@ -357,10 +390,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 2: New song title
-      case 2:
+      // Step 4: New song title
+      case 4:
         return (
-          <StepContainer key={2}>
+          <StepContainer key={4}>
             <TypedPrompt text="What's the name of your new song?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -372,10 +405,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 3: Intended use
-      case 3:
+      // Step 5: Intended use
+      case 5:
         return (
-          <StepContainer key={3}>
+          <StepContainer key={5}>
             <TypedPrompt text="What's this for?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -389,10 +422,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 4: Release context
-      case 4:
+      // Step 6: Release context
+      case 6:
         return (
-          <StepContainer key={4}>
+          <StepContainer key={6}>
             <TypedPrompt text="Who's releasing this?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -401,44 +434,11 @@ function SearchPage() {
                   update({ releaseContext: v });
                   if (v === "distributor" || v === "independent_label") {
                     setTypingDone(false);
-                    update({ step: 4.5 } as any);
+                    update({ step: 6.5 } as any);
                   } else {
                     nextStep();
                   }
                 }}
-              />
-            )}
-          </StepContainer>
-        );
-
-      // ─── ABOUT THE SAMPLE ───
-
-      // Step 5: Sampled song title
-      case 5:
-        return (
-          <StepContainer key={5}>
-            <TypedPrompt text="What's the name of the song you're sampling?" onComplete={onTypingComplete} />
-            {typingDone && (
-              <TextInput
-                ref={inputRef}
-                defaultValue={state.sampledSongTitle}
-                placeholder='e.g. "Think" — James Brown'
-                onSubmit={(v) => handleTextSubmit("sampledSongTitle", v)}
-              />
-            )}
-          </StepContainer>
-        );
-
-      // Step 6: Original artist
-      case 6:
-        return (
-          <StepContainer key={6}>
-            <TypedPrompt text="Who's the original artist?" onComplete={onTypingComplete} />
-            {typingDone && (
-              <TextInput
-                ref={inputRef}
-                placeholder="e.g. James Brown"
-                onSubmit={(v) => handleTextSubmit("originalArtist", v)}
               />
             )}
           </StepContainer>
@@ -558,9 +558,9 @@ function SearchPage() {
 
       default:
         // Distributor sub-step
-        if (state.step === 4.5) {
+        if (state.step === 6.5) {
           return (
-            <StepContainer key="4.5">
+            <StepContainer key="6.5">
               <TypedPrompt text="Which one?" onComplete={onTypingComplete} />
               {typingDone && (
                 <TextInput
@@ -569,7 +569,7 @@ function SearchPage() {
                   onSubmit={(v) => {
                     update({ distributorName: v });
                     setTypingDone(false);
-                    update({ step: 5 });
+                    update({ step: 7 });
                   }}
                 />
               )}
