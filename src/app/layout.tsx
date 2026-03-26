@@ -17,7 +17,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "coastisclear — sample clearance, simplified",
+  title: "Clear Wax — sample clearance, simplified",
   description:
     "Find who owns the music. Get the contact. Draft the letter. Clear the sample — in under 60 seconds.",
 };

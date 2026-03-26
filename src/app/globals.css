@@ -105,3 +105,48 @@ body::after {
   background: rgba(255, 255, 255, 0.15);
   color: var(--text);
 }
+
+/* ─── Apple Liquid Glass Effect ─── */
+.liquid-glass {
+  position: relative;
+  color: transparent;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.6) 25%,
+    rgba(200, 220, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.7) 75%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: liquid-shimmer 6s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.15))
+          drop-shadow(0 0 60px rgba(200, 220, 255, 0.08));
+  letter-spacing: -0.02em;
+}
+
+/* Subtle glass refraction border behind the text */
+.liquid-glass::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(180, 200, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: blur(12px);
+  z-index: -1;
+}
+
+@keyframes liquid-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

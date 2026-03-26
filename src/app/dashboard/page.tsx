@@ -24,7 +24,7 @@ export default function DashboardPage() {
             href="/"
             className="font-display font-extrabold text-xl text-white tracking-tight hover:opacity-80 transition-opacity"
           >
-            COASTISCLEAR
+            Clear Wax
           </Link>
           <p className="font-mono text-xs text-[var(--text-dim)] mt-1">
             Pipeline — {items.length} clearance{items.length !== 1 ? "s" : ""}

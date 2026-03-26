@@ -41,9 +41,9 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
-      {/* Wordmark */}
-      <h1 className="font-display font-extrabold text-[clamp(2rem,8vw,5rem)] tracking-tight text-white mb-12 select-none">
-        COASTISCLEAR
+      {/* Wordmark — Liquid Glass effect */}
+      <h1 className="liquid-glass font-display font-extrabold text-[clamp(2.5rem,10vw,6rem)] tracking-tight mb-12 select-none">
+        Clear Wax
       </h1>
 
       {/* Typed prompt */}
@@ -83,7 +83,7 @@ export default function LandingPage() {
 
       {/* Tagline */}
       <p className="absolute bottom-8 font-mono text-xs text-[var(--text-dim)] tracking-wide">
-        The coast is clear. Sample with confidence.
+        Clear the wax. Sample with confidence.
       </p>
     </div>
   );
