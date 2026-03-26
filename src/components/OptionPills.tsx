@@ -27,10 +27,10 @@ export default function OptionPills({ options, onSelect }: OptionPillsProps) {
             "px-5 py-2.5 rounded-full border font-mono text-sm transition-all duration-200 ease-out",
             "animate-fade-in-up",
             selected === option.value
-              ? "bg-white text-[var(--bg)] border-white"
+              ? "bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)]"
               : selected !== null
                 ? "border-[var(--border)] text-[var(--text-dim)] opacity-40"
-                : "border-[var(--border)] text-[var(--text-mid)] hover:border-[var(--border-active)] hover:text-white active:scale-95"
+                : "border-[var(--border)] text-[var(--text-mid)] hover:border-[var(--border-active)] hover:text-[var(--accent)] active:scale-95"
           )}
           style={{ animationDelay: `${i * 60}ms` }}
         >

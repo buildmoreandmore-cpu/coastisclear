@@ -99,7 +99,7 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
             <div className="space-y-1">
               {data.writers.map((w: Writer, i: number) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-white">{w.name}</span>
+                  <span className="text-[var(--text)]">{w.name}</span>
                   {w.pro && (
                     <span className="text-[var(--text-dim)] text-xs">
                       {w.pro}
@@ -126,18 +126,18 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
         )}
 
         <Row label={data.type === "master" ? "Owner" : "Publisher"}>
-          <span className="text-white">{data.holder}</span>
+          <span className="text-[var(--text)]">{data.holder}</span>
         </Row>
 
         {data.administrator && (
           <Row label="Administered by">
-            <span className="text-white">{data.administrator}</span>
+            <span className="text-[var(--text)]">{data.administrator}</span>
           </Row>
         )}
 
         {data.pro && (
           <Row label="PRO">
-            <span className="text-white">
+            <span className="text-[var(--text)]">
               {data.pro}
               {data.proId && (
                 <span className="text-[var(--text-dim)]"> · {data.proId}</span>
@@ -152,10 +152,10 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
         {data.email && (
           <Row label="Contact">
             <div className="flex items-center gap-2 group">
-              <span className="text-white">{data.email}</span>
+              <span className="text-[var(--text)]">{data.email}</span>
               <button
                 onClick={copyEmail}
-                className="opacity-0 group-hover:opacity-100 text-[var(--text-dim)] hover:text-white text-xs transition-opacity"
+                className="opacity-0 group-hover:opacity-100 text-[var(--text-dim)] hover:text-[var(--accent)] text-xs transition-opacity"
               >
                 {copied ? "Copied" : "Copy"}
               </button>
@@ -165,19 +165,19 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
 
         {data.phone && (
           <Row label="Phone">
-            <span className="text-white">{data.phone}</span>
+            <span className="text-[var(--text)]">{data.phone}</span>
           </Row>
         )}
 
         {data.address && (
           <Row label="Address">
-            <span className="text-white">{data.address}</span>
+            <span className="text-[var(--text)]">{data.address}</span>
           </Row>
         )}
 
         {data.department && (
           <Row label="Dept">
-            <span className="text-white">{data.department}</span>
+            <span className="text-[var(--text)]">{data.department}</span>
           </Row>
         )}
 
@@ -186,14 +186,14 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
           <>
             <div className="border-t border-[var(--border)] my-2" />
             <Row label="Avg. Fee">
-              <span className="text-white">{data.avgFee}</span>
+              <span className="text-[var(--text)]">{data.avgFee}</span>
             </Row>
           </>
         )}
 
         {data.avgResponseWeeks && (
           <Row label="Response">
-            <span className="text-white">{data.avgResponseWeeks}</span>
+            <span className="text-[var(--text)]">{data.avgResponseWeeks}</span>
           </Row>
         )}
       </div>

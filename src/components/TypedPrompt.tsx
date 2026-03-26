@@ -34,10 +34,10 @@ export default function TypedPrompt({
   }, [text, speed, onComplete]);
 
   return (
-    <p className="font-display font-bold text-xl sm:text-2xl text-white leading-relaxed">
+    <p className="font-display font-bold text-xl sm:text-2xl text-[var(--accent)] leading-relaxed">
       <span aria-hidden="true">{displayed}</span>
       <span
-        className={`inline-block w-[2px] h-[1.1em] bg-white ml-[2px] align-middle ${
+        className={`inline-block w-[2px] h-[1.1em] bg-[var(--accent)] ml-[2px] align-middle ${
           done ? "animate-blink" : ""
         }`}
       />

@@ -29,12 +29,12 @@ export default function ScanningState({ phases, onComplete }: ScanningStateProps
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="absolute inset-0 rounded-full border border-white/20 animate-pulse-expand"
+            className="absolute inset-0 rounded-full border border-gray-500/20 animate-pulse-expand"
             style={{ animationDelay: `${i * 600}ms` }}
           />
         ))}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-3 h-3 rounded-full bg-white animate-pulse-ring" />
+          <div className="w-3 h-3 rounded-full bg-gray-500 animate-pulse-ring" />
         </div>
       </div>
 
@@ -49,7 +49,7 @@ export default function ScanningState({ phases, onComplete }: ScanningStateProps
               key={i}
               className={cn(
                 "w-1.5 h-1.5 rounded-full transition-colors duration-300",
-                i <= currentPhase ? "bg-white" : "bg-[var(--text-dim)]"
+                i <= currentPhase ? "bg-gray-500" : "bg-[var(--text-dim)]"
               )}
             />
           ))}

@@ -436,7 +436,7 @@ function SearchPage() {
                       onClick={() => handleTagToggle(tag)}
                       className={`px-3 py-1.5 rounded-full font-mono text-xs transition-all ${
                         state.sampleUseTags.includes(tag)
-                          ? "bg-white text-[var(--bg)] border border-white"
+                          ? "bg-[var(--accent)] text-[var(--bg)] border border-[var(--accent)]"
                           : "border border-[var(--border)] text-[var(--text-dim)] hover:border-[var(--border-active)] hover:text-[var(--text-mid)]"
                       }`}
                     >
@@ -448,7 +448,7 @@ function SearchPage() {
                   ref={textareaRef}
                   placeholder='e.g. "The main melody loops throughout the chorus"'
                   rows={3}
-                  className="w-full bg-transparent border-none outline-none font-mono text-lg text-white placeholder:text-[var(--text-dim)] caret-white resize-none"
+                  className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-gray-500 resize-none"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -631,19 +631,19 @@ function SearchPage() {
                   <div className="flex flex-col sm:flex-row gap-3 pt-4">
                     <button
                       onClick={generateLetters}
-                      className="flex-1 px-6 py-3 bg-white text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-white/90 transition-colors"
+                      className="flex-1 px-6 py-3 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 transition-colors"
                     >
                       Draft Clearance Letter
                     </button>
                     <button
                       onClick={addToPipeline}
-                      className="flex-1 px-6 py-3 border border-[var(--border-active)] text-white font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] transition-colors"
+                      className="flex-1 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] transition-colors"
                     >
                       Add to Pipeline
                     </button>
                     <button
                       onClick={() => router.push("/search")}
-                      className="flex-1 px-6 py-3 border border-[var(--border)] text-[var(--text-mid)] font-mono text-sm rounded-lg hover:border-[var(--border-active)] hover:text-white transition-colors"
+                      className="flex-1 px-6 py-3 border border-[var(--border)] text-[var(--text-mid)] font-mono text-sm rounded-lg hover:border-[var(--border-active)] hover:text-[var(--accent)] transition-colors"
                     >
                       Search Another
                     </button>
@@ -665,7 +665,7 @@ function SearchPage() {
                 onClick={() => {
                   update({ lookupStatus: "idle", step: 8 });
                 }}
-                className="mt-4 px-6 py-3 border border-[var(--border-active)] text-white font-mono text-sm rounded-lg"
+                className="mt-4 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg"
               >
                 Retry
               </button>
@@ -686,7 +686,7 @@ function SearchPage() {
             <div
               key={i}
               className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
-                i <= Math.floor(state.step) ? "bg-white" : "bg-[var(--text-dim)]"
+                i <= Math.floor(state.step) ? "bg-[var(--accent)]" : "bg-[var(--text-dim)]"
               }`}
             />
           ))}
@@ -757,7 +757,7 @@ const TextInput = forwardRef<
             onSubmit(value);
           }
         }}
-        className="w-full bg-transparent border-none outline-none font-mono text-lg text-white placeholder:text-[var(--text-dim)] caret-white"
+        className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-gray-500"
       />
     </div>
   );
@@ -782,7 +782,7 @@ function TimingInput({
           value={start}
           onChange={(e) => setStart(e.target.value)}
           placeholder="0:04"
-          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-white text-center placeholder:text-[var(--text-dim)] caret-white border-b border-b-[var(--text-dim)]"
+          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] text-center placeholder:text-[var(--text-dim)] caret-gray-500 border-b border-b-[var(--text-dim)]"
           style={{ borderBottom: '1px solid var(--text-dim)' }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === "Tab") {
@@ -798,7 +798,7 @@ function TimingInput({
           value={end}
           onChange={(e) => setEnd(e.target.value)}
           placeholder="0:12"
-          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-white text-center placeholder:text-[var(--text-dim)] caret-white"
+          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] text-center placeholder:text-[var(--text-dim)] caret-gray-500"
           style={{ borderBottom: '1px solid var(--text-dim)' }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -813,7 +813,7 @@ function TimingInput({
         <button
           onClick={() => onSubmit(start, end)}
           disabled={!start || !end}
-          className="font-mono text-xs text-[var(--text-mid)] hover:text-white disabled:opacity-30 transition-colors"
+          className="font-mono text-xs text-[var(--text-mid)] hover:text-[var(--accent)] disabled:opacity-30 transition-colors"
         >
           Continue
         </button>

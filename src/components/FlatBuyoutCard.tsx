@@ -18,15 +18,15 @@ export default function FlatBuyoutCard() {
       <div className="space-y-3 font-mono text-sm">
         <div className="flex gap-4">
           <span className="text-[var(--text-dim)] w-28 shrink-0 text-right">Typical range</span>
-          <span className="text-white">$500 – $5,000</span>
+          <span className="text-[var(--text)]">$500 – $5,000</span>
         </div>
         <div className="flex gap-4">
           <span className="text-[var(--text-dim)] w-28 shrink-0 text-right">Coordination</span>
-          <span className="text-white">Artist or attorney can reach out directly</span>
+          <span className="text-[var(--text)]">Artist or attorney can reach out directly</span>
         </div>
         <div className="flex gap-4">
           <span className="text-[var(--text-dim)] w-28 shrink-0 text-right">What you save</span>
-          <span className="text-white">No % of publishing, no points on master, no intermediary fee</span>
+          <span className="text-[var(--text)]">No % of publishing, no points on master, no intermediary fee</span>
         </div>
       </div>
 

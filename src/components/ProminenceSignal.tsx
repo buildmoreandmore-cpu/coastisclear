@@ -52,7 +52,7 @@ export default function ProminenceSignal({
           <span className="text-[var(--text-dim)] w-24 shrink-0 text-right">
             Original
           </span>
-          <span className="text-white">
+          <span className="text-[var(--text)]">
             {originalTimingStart} – {originalTimingEnd} ({originalDuration}s
             sampled)
           </span>
@@ -61,7 +61,7 @@ export default function ProminenceSignal({
           <span className="text-[var(--text-dim)] w-24 shrink-0 text-right">
             New track
           </span>
-          <span className="text-white">
+          <span className="text-[var(--text)]">
             {newTimingStart} – {newTimingEnd} ({newDuration}s featured)
           </span>
         </div>
@@ -69,7 +69,7 @@ export default function ProminenceSignal({
           <span className="text-[var(--text-dim)] w-24 shrink-0 text-right">
             Prominence
           </span>
-          <span className="text-white">
+          <span className="text-[var(--text)]">
             ~{Math.round(prominence * 100)}% of new composition
           </span>
         </div>

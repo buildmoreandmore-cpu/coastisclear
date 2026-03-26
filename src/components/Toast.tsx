@@ -20,7 +20,7 @@ export default function Toast({ message, visible, onDismiss }: ToastProps) {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
-      <div className="bg-[var(--surface3)] border border-[var(--border-active)] rounded-lg px-4 py-3 font-mono text-sm text-white shadow-lg">
+      <div className="bg-[var(--surface3)] border border-[var(--border-active)] rounded-lg px-4 py-3 font-mono text-sm text-[var(--text)] shadow-lg">
         {message}
       </div>
     </div>

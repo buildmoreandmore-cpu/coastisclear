@@ -84,12 +84,12 @@ export default function LetterModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
-          <h2 className="font-display font-bold text-lg text-white">
+          <h2 className="font-display font-bold text-lg text-[var(--text)]">
             Clearance Letter
           </h2>
           <button
             onClick={onClose}
-            className="text-[var(--text-dim)] hover:text-white transition-colors font-mono text-sm"
+            className="text-[var(--text-dim)] hover:text-[var(--text)] transition-colors font-mono text-sm"
           >
             Close
           </button>
@@ -102,7 +102,7 @@ export default function LetterModal({
               onClick={() => setActiveTab("master")}
               className={`flex-1 px-4 py-3 font-mono text-xs uppercase tracking-wider transition-colors ${
                 activeTab === "master"
-                  ? "text-white border-b-2 border-white"
+                  ? "text-[var(--text)] border-b-2 border-[var(--accent)]"
                   : "text-[var(--text-dim)] hover:text-[var(--text-mid)]"
               }`}
             >
@@ -114,7 +114,7 @@ export default function LetterModal({
               onClick={() => setActiveTab("publishing")}
               className={`flex-1 px-4 py-3 font-mono text-xs uppercase tracking-wider transition-colors ${
                 activeTab === "publishing"
-                  ? "text-white border-b-2 border-white"
+                  ? "text-[var(--text)] border-b-2 border-[var(--accent)]"
                   : "text-[var(--text-dim)] hover:text-[var(--text-mid)]"
               }`}
             >
@@ -151,14 +151,14 @@ export default function LetterModal({
           <button
             onClick={copyToClipboard}
             disabled={!currentLetter || isLoading}
-            className="flex-1 px-4 py-2.5 bg-white text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-white/90 disabled:opacity-30 transition-all"
+            className="flex-1 px-4 py-2.5 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 disabled:opacity-30 transition-all"
           >
             {copied ? "Copied!" : "Copy to Clipboard"}
           </button>
           <button
             onClick={downloadLetter}
             disabled={!currentLetter || isLoading}
-            className="flex-1 px-4 py-2.5 border border-[var(--border-active)] text-white font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] disabled:opacity-30 transition-all"
+            className="flex-1 px-4 py-2.5 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] disabled:opacity-30 transition-all"
           >
             Download .txt
           </button>

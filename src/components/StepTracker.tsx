@@ -36,7 +36,7 @@ export default function StepTracker({ steps, rightsType, onAdvance }: StepTracke
               {isCompleted ? (
                 <span className="text-[var(--success)] text-xs">&#10003;</span>
               ) : isCurrent ? (
-                <span className="w-2 h-2 rounded-full bg-white" />
+                <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
               ) : (
                 <span className="w-2 h-2 rounded-full bg-[var(--text-dim)]" />
               )}
@@ -48,7 +48,7 @@ export default function StepTracker({ steps, rightsType, onAdvance }: StepTracke
                 isCompleted
                   ? "text-[var(--text-mid)]"
                   : isCurrent
-                    ? "text-white"
+                    ? "text-[var(--text)]"
                     : "text-[var(--text-dim)]"
               }`}
             >
@@ -68,7 +68,7 @@ export default function StepTracker({ steps, rightsType, onAdvance }: StepTracke
             {isCurrent && (
               <button
                 onClick={() => onAdvance(step.stepNumber)}
-                className="opacity-0 group-hover:opacity-100 font-mono text-xs text-[var(--text-dim)] hover:text-white transition-all"
+                className="opacity-0 group-hover:opacity-100 font-mono text-xs text-[var(--text-dim)] hover:text-[var(--accent)] transition-all"
               >
                 Complete
               </button>

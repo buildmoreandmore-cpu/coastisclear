@@ -39,7 +39,7 @@ export default function PipelineCard({ item, onAdvanceStep, onDelete }: Pipeline
         className="w-full px-5 py-4 flex items-center gap-4 text-left hover:bg-[var(--accent-soft)] transition-colors"
       >
         <div className="flex-1 min-w-0">
-          <p className="font-display font-bold text-sm text-white truncate">
+          <p className="font-display font-bold text-sm text-[var(--text)] truncate">
             {item.newSongTitle || "Untitled"}
           </p>
           <p className="font-mono text-xs text-[var(--text-mid)] mt-0.5">

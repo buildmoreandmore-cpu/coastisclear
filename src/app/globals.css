@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --surface2: #1a1a1a;
-  --surface3: #222222;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-active: rgba(255, 255, 255, 0.18);
-  --text: #f2f2f2;
-  --text-mid: #888888;
-  --text-dim: #444444;
-  --accent: #ffffff;
-  --accent-soft: rgba(255, 255, 255, 0.08);
-  --success: #3ecf8e;
-  --warning: #f5a623;
-  --danger: #e5484d;
-  --info: #4c9fd8;
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface2: #111111;
+  --surface3: #1a1a1a;
+  --border: rgba(255, 255, 255, 0.04);
+  --border-active: rgba(255, 255, 255, 0.12);
+  --text: #8a8a8a;
+  --text-mid: #5a5a5a;
+  --text-dim: #333333;
+  --accent: #9a9a9a;
+  --accent-soft: rgba(255, 255, 255, 0.05);
+  --success: #2a8a5e;
+  --warning: #a07018;
+  --danger: #9a3538;
+  --info: #3a7a9a;
 }
 
 body {
@@ -102,7 +102,7 @@ body::after {
 
 /* Selection */
 ::selection {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text);
 }
 
@@ -112,18 +112,18 @@ body::after {
   color: transparent;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.6) 25%,
-    rgba(200, 220, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.7) 75%,
-    rgba(255, 255, 255, 0.95) 100%
+    rgba(160, 160, 160, 0.95) 0%,
+    rgba(120, 120, 120, 0.6) 25%,
+    rgba(140, 150, 170, 0.5) 50%,
+    rgba(130, 130, 130, 0.7) 75%,
+    rgba(160, 160, 160, 0.95) 100%
   );
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   animation: liquid-shimmer 6s ease-in-out infinite;
-  filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.15))
-          drop-shadow(0 0 60px rgba(200, 220, 255, 0.08));
+  filter: drop-shadow(0 0 30px rgba(160, 160, 160, 0.1))
+          drop-shadow(0 0 60px rgba(140, 150, 170, 0.05));
   letter-spacing: -0.02em;
 }
 
@@ -135,9 +135,9 @@ body::after {
   color: transparent;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(180, 200, 255, 0.12) 50%,
-    rgba(255, 255, 255, 0.06) 100%
+    rgba(160, 160, 160, 0.06) 0%,
+    rgba(140, 150, 170, 0.08) 50%,
+    rgba(160, 160, 160, 0.04) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
