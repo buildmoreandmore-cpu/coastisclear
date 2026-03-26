@@ -46,7 +46,7 @@ export default function LandingPage() {
         aria-hidden="true"
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
       >
-        <span className="font-display font-extrabold text-[clamp(4rem,18vw,14rem)] tracking-tight text-gray-500/[0.03] whitespace-nowrap">
+        <span className="font-display font-extrabold text-[clamp(4rem,18vw,14rem)] tracking-tight text-black/[0.04] whitespace-nowrap">
           Clear Wax
         </span>
       </div>
@@ -61,7 +61,7 @@ export default function LandingPage() {
         <p className="font-mono text-lg sm:text-xl text-[var(--text-mid)]">
           {typedText}
           <span
-            className={`inline-block w-[2px] h-[1.1em] bg-gray-500 ml-[2px] align-middle ${
+            className={`inline-block w-[2px] h-[1.1em] bg-[var(--text)] ml-[2px] align-middle ${
               typingDone ? "animate-blink" : ""
             }`}
           />
@@ -83,7 +83,7 @@ export default function LandingPage() {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder='e.g. Think — James Brown'
-          className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-gray-500 text-center"
+          className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-[var(--text)] text-center"
           aria-label="Song you are sampling"
         />
       </form>

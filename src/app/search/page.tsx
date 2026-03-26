@@ -533,7 +533,7 @@ function SearchPage() {
                   ref={textareaRef}
                   placeholder='e.g. "The main melody loops throughout the chorus"'
                   rows={3}
-                  className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-gray-500 resize-none"
+                  className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-[var(--text)] resize-none"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -807,7 +807,7 @@ const TextInput = forwardRef<
             onSubmit(value);
           }
         }}
-        className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-gray-500"
+        className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-[var(--text)]"
       />
     </div>
   );
@@ -832,7 +832,7 @@ function TimingInput({
           value={start}
           onChange={(e) => setStart(e.target.value)}
           placeholder="0:04"
-          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] text-center placeholder:text-[var(--text-dim)] caret-gray-500 border-b border-b-[var(--text-dim)]"
+          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] text-center placeholder:text-[var(--text-dim)] caret-[var(--text)] border-b border-b-[var(--text-dim)]"
           style={{ borderBottom: '1px solid var(--text-dim)' }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === "Tab") {
@@ -848,7 +848,7 @@ function TimingInput({
           value={end}
           onChange={(e) => setEnd(e.target.value)}
           placeholder="0:12"
-          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] text-center placeholder:text-[var(--text-dim)] caret-gray-500"
+          className="w-20 bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] text-center placeholder:text-[var(--text-dim)] caret-[var(--text)]"
           style={{ borderBottom: '1px solid var(--text-dim)' }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {

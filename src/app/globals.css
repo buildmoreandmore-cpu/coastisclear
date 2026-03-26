@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --bg: #000000;
-  --surface: #0a0a0a;
-  --surface2: #111111;
-  --surface3: #1a1a1a;
-  --border: rgba(255, 255, 255, 0.04);
-  --border-active: rgba(255, 255, 255, 0.12);
-  --text: #8a8a8a;
-  --text-mid: #5a5a5a;
-  --text-dim: #333333;
-  --accent: #9a9a9a;
-  --accent-soft: rgba(255, 255, 255, 0.05);
-  --success: #2a8a5e;
-  --warning: #a07018;
-  --danger: #9a3538;
-  --info: #3a7a9a;
+  --bg: #d4d4d4;
+  --surface: #c8c8c8;
+  --surface2: #bfbfbf;
+  --surface3: #b5b5b5;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-active: rgba(0, 0, 0, 0.2);
+  --text: #1a1a1a;
+  --text-mid: #4a4a4a;
+  --text-dim: #7a7a7a;
+  --accent: #1a1a1a;
+  --accent-soft: rgba(0, 0, 0, 0.06);
+  --success: #2a7a4e;
+  --warning: #8a6010;
+  --danger: #8a2528;
+  --info: #2a6a8a;
 }
 
 body {
@@ -33,7 +33,7 @@ body::after {
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
   background-size: 128px 128px;
-  opacity: 0.03;
+  opacity: 0.04;
   pointer-events: none;
   z-index: 9999;
 }
@@ -102,7 +102,7 @@ body::after {
 
 /* Selection */
 ::selection {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
   color: var(--text);
 }
 
@@ -112,18 +112,18 @@ body::after {
   color: transparent;
   background: linear-gradient(
     135deg,
-    rgba(160, 160, 160, 0.95) 0%,
-    rgba(120, 120, 120, 0.6) 25%,
-    rgba(140, 150, 170, 0.5) 50%,
-    rgba(130, 130, 130, 0.7) 75%,
-    rgba(160, 160, 160, 0.95) 100%
+    rgba(20, 20, 20, 0.95) 0%,
+    rgba(40, 40, 40, 0.6) 25%,
+    rgba(30, 35, 45, 0.5) 50%,
+    rgba(35, 35, 35, 0.7) 75%,
+    rgba(20, 20, 20, 0.95) 100%
   );
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   animation: liquid-shimmer 6s ease-in-out infinite;
-  filter: drop-shadow(0 0 30px rgba(160, 160, 160, 0.1))
-          drop-shadow(0 0 60px rgba(140, 150, 170, 0.05));
+  filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.1))
+          drop-shadow(0 0 60px rgba(30, 35, 45, 0.05));
   letter-spacing: -0.02em;
 }
 
@@ -135,9 +135,9 @@ body::after {
   color: transparent;
   background: linear-gradient(
     135deg,
-    rgba(160, 160, 160, 0.06) 0%,
-    rgba(140, 150, 170, 0.08) 50%,
-    rgba(160, 160, 160, 0.04) 100%
+    rgba(0, 0, 0, 0.06) 0%,
+    rgba(30, 35, 45, 0.08) 50%,
+    rgba(0, 0, 0, 0.04) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
