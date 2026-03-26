@@ -41,21 +41,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 relative">
-      {/* Background wordmark — large, faded */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
-      >
-        <span className="font-display font-extrabold text-[clamp(4rem,18vw,14rem)] tracking-tight text-black/[0.04] whitespace-nowrap">
-          Clear Wax
-        </span>
-      </div>
-
-      {/* Wordmark — Liquid Glass effect */}
-      <h1 className="liquid-glass font-display font-extrabold text-[clamp(2.5rem,10vw,6rem)] tracking-tight mb-12 select-none relative z-10">
-        Clear Wax
-      </h1>
-
       {/* Typed prompt */}
       <div className="flex items-center gap-0 mb-8 relative z-10">
         <p className="font-mono text-lg sm:text-xl text-[var(--text-mid)]">

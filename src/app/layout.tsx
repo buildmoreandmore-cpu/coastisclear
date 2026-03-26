@@ -36,9 +36,9 @@ export default function RootLayout({
         <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
           <Link
             href="/"
-            className="font-mono text-sm font-medium text-[var(--text)] hover:opacity-60 transition-opacity tracking-wide"
+            className="liquid-glass font-display font-extrabold text-xl tracking-tight hover:opacity-80 transition-opacity select-none"
           >
-            clear
+            Clear Wax
           </Link>
           <div className="flex items-center gap-6">
             <Link
