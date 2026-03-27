@@ -42,7 +42,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 relative">
       {/* Typed prompt */}
-      <div className="flex items-center gap-0 mb-8 relative z-10">
+      <div className="flex items-center justify-center gap-0 mb-8 relative z-10 w-full text-center">
         <p className="font-mono text-lg sm:text-xl text-[var(--text-mid)]">
           {typedText}
           <span

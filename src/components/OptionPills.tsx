@@ -17,7 +17,7 @@ export default function OptionPills({ options, onSelect }: OptionPillsProps) {
   };
 
   return (
-    <div className="flex flex-wrap gap-3 mt-6">
+    <div className="flex flex-wrap justify-center gap-3 mt-6">
       {options.map((option, i) => (
         <button
           key={option.value}

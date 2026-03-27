@@ -514,7 +514,7 @@ function SearchPage() {
             <TypedPrompt text="Describe how you're using the sample." onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-4">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   {SAMPLE_USE_TAGS.map((tag) => (
                     <button
                       key={tag}
@@ -774,7 +774,7 @@ function StepContainer({ children, key: k }: { children: React.ReactNode; key: s
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] }}
-      className="w-full"
+      className="w-full flex flex-col items-center text-center"
     >
       {children}
     </motion.div>
@@ -794,7 +794,7 @@ const TextInput = forwardRef<
   const [value, setValue] = useState(defaultValue || "");
 
   return (
-    <div className="mt-6 animate-fade-in-up">
+    <div className="mt-6 animate-fade-in-up w-full">
       <input
         ref={ref}
         type="text"
@@ -807,7 +807,7 @@ const TextInput = forwardRef<
             onSubmit(value);
           }
         }}
-        className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-[var(--text)]"
+        className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-[var(--text)] text-center"
       />
     </div>
   );
@@ -825,8 +825,8 @@ function TimingInput({
   const endRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="mt-6 animate-fade-in-up space-y-3">
-      <div className="flex items-center gap-3">
+    <div className="mt-6 animate-fade-in-up space-y-3 w-full flex flex-col items-center">
+      <div className="flex items-center justify-center gap-3">
         <input
           type="text"
           value={start}
@@ -859,7 +859,7 @@ function TimingInput({
         />
       </div>
       <p className="font-mono text-xs text-[var(--text-dim)]">{helperText}</p>
-      <div className="flex gap-3">
+      <div className="flex gap-3 justify-center">
         <button
           onClick={() => onSubmit(start, end)}
           disabled={!start || !end}
