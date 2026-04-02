@@ -80,7 +80,9 @@ Base your inference on known industry relationships, catalog ownership history, 
       ],
     });
 
-    const text = response.choices[0]?.message?.content || "";
+    let text = response.choices[0]?.message?.content || "";
+    // Strip any <think>...</think> blocks
+    text = text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
 
@@ -212,7 +214,10 @@ Output the letter only. No preamble. No explanation.`,
       ],
     });
 
-    return response.choices[0]?.message?.content || generateDemoLetter(context);
+    let text = response.choices[0]?.message?.content || "";
+    // Strip any <think>...</think> blocks from the response
+    text = text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
+    return text || generateDemoLetter(context);
   } catch {
     return generateDemoLetter(context);
   }

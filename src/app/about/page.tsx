@@ -52,7 +52,7 @@ export default function AboutPage() {
             </li>
             <li className="flex gap-3">
               <span className="text-[var(--text-dim)] shrink-0">05</span>
-              <span>Alternative paths flagged — interpolation options, flat buyout eligibility, related entities</span>
+              <span>Pipeline tracking — manage your clearance workflow from first contact to contract</span>
             </li>
           </ul>
         </div>

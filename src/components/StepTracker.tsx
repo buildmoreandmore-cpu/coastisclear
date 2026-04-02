@@ -11,12 +11,27 @@ interface StepTrackerProps {
 export default function StepTracker({ steps, rightsType, onAdvance }: StepTrackerProps) {
   const currentStep = steps.findIndex((s) => !s.completed);
   const label = rightsType === "master" ? "Master" : "Publishing";
+  const completedCount = steps.filter((s) => s.completed).length;
 
   return (
     <div className="space-y-1">
-      <p className="font-mono text-xs uppercase tracking-widest text-[var(--text-dim)] mb-3">
-        {label}
-      </p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="font-mono text-xs uppercase tracking-widest text-[var(--text-dim)]">
+          {label}
+        </p>
+        <span className="font-mono text-xs text-[var(--text-dim)]">
+          {completedCount}/{steps.length}
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-full h-1 bg-[var(--surface2)] rounded-full mb-4 overflow-hidden">
+        <div
+          className="h-full bg-[var(--accent)] rounded-full transition-all duration-500"
+          style={{ width: `${(completedCount / steps.length) * 100}%` }}
+        />
+      </div>
+
       {steps.map((step, i) => {
         const isCompleted = step.completed;
         const isCurrent = i === currentStep;
@@ -27,18 +42,44 @@ export default function StepTracker({ steps, rightsType, onAdvance }: StepTracke
             7 * 24 * 60 * 60 * 1000;
 
         return (
-          <div
+          <button
             key={step.stepNumber}
-            className="flex items-center gap-3 py-1.5 group"
+            onClick={() => {
+              if (isCurrent) onAdvance(step.stepNumber);
+            }}
+            disabled={!isCurrent}
+            className={`w-full flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all text-left ${
+              isCurrent
+                ? "bg-[var(--accent-soft)] border border-[var(--accent)]/30 cursor-pointer hover:bg-[var(--accent-soft)]/80"
+                : isCompleted
+                  ? "bg-transparent cursor-default"
+                  : "bg-transparent cursor-default opacity-50"
+            }`}
           >
             {/* Step indicator */}
-            <div className="w-5 flex justify-center shrink-0">
+            <div className="w-6 h-6 flex items-center justify-center shrink-0 rounded-full border transition-colors"
+              style={{
+                borderColor: isCompleted
+                  ? "var(--success)"
+                  : isCurrent
+                    ? "var(--accent)"
+                    : "var(--border)",
+                backgroundColor: isCompleted
+                  ? "var(--success)"
+                  : "transparent",
+              }}
+            >
               {isCompleted ? (
-                <span className="text-[var(--success)] text-xs">&#10003;</span>
-              ) : isCurrent ? (
-                <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+                <span className="text-white text-xs font-bold">&#10003;</span>
               ) : (
-                <span className="w-2 h-2 rounded-full bg-[var(--text-dim)]" />
+                <span
+                  className="font-mono text-xs"
+                  style={{
+                    color: isCurrent ? "var(--accent)" : "var(--text-dim)",
+                  }}
+                >
+                  {i + 1}
+                </span>
               )}
             </div>
 
@@ -46,9 +87,9 @@ export default function StepTracker({ steps, rightsType, onAdvance }: StepTracke
             <span
               className={`font-mono text-xs flex-1 ${
                 isCompleted
-                  ? "text-[var(--text-mid)]"
+                  ? "text-[var(--text-mid)] line-through"
                   : isCurrent
-                    ? "text-[var(--text)]"
+                    ? "text-[var(--text)] font-semibold"
                     : "text-[var(--text-dim)]"
               }`}
             >
@@ -66,18 +107,15 @@ export default function StepTracker({ steps, rightsType, onAdvance }: StepTracke
             )}
 
             {isCurrent && (
-              <button
-                onClick={() => onAdvance(step.stepNumber)}
-                className="opacity-0 group-hover:opacity-100 font-mono text-xs text-[var(--text-dim)] hover:text-[var(--accent)] transition-all"
-              >
-                Complete
-              </button>
+              <span className="font-mono text-xs text-[var(--accent)] font-semibold">
+                Mark Done
+              </span>
             )}
 
             {isOverdue && (
-              <span className="text-[var(--warning)] text-xs">&#9888;</span>
+              <span className="text-[var(--warning)] text-xs ml-1">&#9888;</span>
             )}
-          </div>
+          </button>
         );
       })}
     </div>

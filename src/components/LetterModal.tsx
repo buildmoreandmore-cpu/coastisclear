@@ -19,7 +19,18 @@ export default function LetterModal({
 }: LetterModalProps) {
   const [activeTab, setActiveTab] = useState<"master" | "publishing">("publishing");
   const [copied, setCopied] = useState(false);
+  const [editedMaster, setEditedMaster] = useState("");
+  const [editedPublishing, setEditedPublishing] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Sync edited text when letters come in
+  useEffect(() => {
+    if (masterLetter) setEditedMaster(masterLetter);
+  }, [masterLetter]);
+
+  useEffect(() => {
+    if (publishingLetter) setEditedPublishing(publishingLetter);
+  }, [publishingLetter]);
 
   useEffect(() => {
     if (isOpen) {
@@ -44,7 +55,9 @@ export default function LetterModal({
   if (!isOpen) return null;
 
   const currentLetter =
-    activeTab === "master" ? masterLetter : publishingLetter;
+    activeTab === "master" ? editedMaster : editedPublishing;
+  const setCurrentLetter =
+    activeTab === "master" ? setEditedMaster : setEditedPublishing;
 
   const copyToClipboard = async () => {
     if (!currentLetter) return;
@@ -53,15 +66,28 @@ export default function LetterModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const downloadLetter = () => {
+  const downloadPDF = () => {
     if (!currentLetter) return;
-    const blob = new Blob([currentLetter], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `clearance-letter-${activeTab}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Generate a simple PDF using a print-friendly HTML page
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Clearance Letter - ${activeTab}</title>
+        <style>
+          body { font-family: 'Courier New', monospace; font-size: 12pt; line-height: 1.6; max-width: 700px; margin: 40px auto; padding: 40px; color: #1a1a1a; }
+          @media print { body { margin: 0; padding: 20px; } }
+        </style>
+      </head>
+      <body>
+        <pre style="white-space: pre-wrap; font-family: 'Courier New', monospace;">${currentLetter.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+        <script>window.onload = function() { window.print(); }</script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   return (
@@ -80,7 +106,7 @@ export default function LetterModal({
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative w-full max-w-2xl max-h-[80vh] bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden animate-fade-in-up mx-4"
+        className="relative w-full max-w-2xl max-h-[85vh] bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden animate-fade-in-up mx-4"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
@@ -123,7 +149,16 @@ export default function LetterModal({
           )}
         </div>
 
-        {/* Content */}
+        {/* Editable hint */}
+        {!isLoading && currentLetter && (
+          <div className="px-6 pt-3">
+            <p className="font-mono text-xs text-[var(--text-dim)]">
+              Edit the letter below to fill in any missing details, then download as PDF.
+            </p>
+          </div>
+        )}
+
+        {/* Content — editable */}
         <div className="p-6 overflow-y-auto max-h-[50vh]">
           {isLoading ? (
             <div className="space-y-3">
@@ -136,9 +171,12 @@ export default function LetterModal({
               ))}
             </div>
           ) : currentLetter ? (
-            <pre className="font-mono text-sm text-[var(--text)] whitespace-pre-wrap leading-relaxed">
-              {currentLetter}
-            </pre>
+            <textarea
+              value={currentLetter}
+              onChange={(e) => setCurrentLetter(e.target.value)}
+              className="w-full bg-transparent font-mono text-sm text-[var(--text)] leading-relaxed outline-none resize-none min-h-[300px]"
+              rows={20}
+            />
           ) : (
             <p className="font-mono text-sm text-[var(--text-dim)]">
               No letter generated for this side.
@@ -151,16 +189,16 @@ export default function LetterModal({
           <button
             onClick={copyToClipboard}
             disabled={!currentLetter || isLoading}
-            className="flex-1 px-4 py-2.5 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 disabled:opacity-30 transition-all"
-          >
-            {copied ? "Copied!" : "Copy to Clipboard"}
-          </button>
-          <button
-            onClick={downloadLetter}
-            disabled={!currentLetter || isLoading}
             className="flex-1 px-4 py-2.5 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] disabled:opacity-30 transition-all"
           >
-            Download .txt
+            {copied ? "Copied!" : "Copy"}
+          </button>
+          <button
+            onClick={downloadPDF}
+            disabled={!currentLetter || isLoading}
+            className="flex-1 px-4 py-2.5 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 disabled:opacity-30 transition-all"
+          >
+            Download PDF
           </button>
         </div>
       </div>

@@ -9,9 +9,7 @@ import TypedPrompt from "@/components/TypedPrompt";
 import OptionPills from "@/components/OptionPills";
 import ScanningState from "@/components/ScanningState";
 import OwnershipCard from "@/components/OwnershipCard";
-import InterpolationCard from "@/components/InterpolationCard";
-import FlatBuyoutCard from "@/components/FlatBuyoutCard";
-import RelatedEntityAlert from "@/components/RelatedEntityAlert";
+
 import ProminenceSignal from "@/components/ProminenceSignal";
 import LetterModal from "@/components/LetterModal";
 import Toast from "@/components/Toast";
@@ -654,15 +652,6 @@ function SearchPage() {
                     />
                   )}
 
-                  {/* Related Entity Alert */}
-                  {results?.relatedEntity && (
-                    <RelatedEntityAlert
-                      distributorName={results.relatedEntity.distributorName}
-                      holderName={results.relatedEntity.holderName}
-                      sharedParent={results.relatedEntity.sharedParent}
-                    />
-                  )}
-
                   {/* Publishing Card */}
                   {results?.publishing && (
                     <OwnershipCard data={results.publishing} delay={0} />
@@ -672,12 +661,6 @@ function SearchPage() {
                   {results?.master && (
                     <OwnershipCard data={results.master} delay={200} />
                   )}
-
-                  {/* Interpolation Card */}
-                  {results?.interpolationRecommended && <InterpolationCard />}
-
-                  {/* Flat Buyout Card */}
-                  {results?.flatBuyoutEligible && <FlatBuyoutCard />}
 
                   {/* No results */}
                   {!results?.master && !results?.publishing && (
