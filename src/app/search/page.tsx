@@ -131,6 +131,14 @@ function SearchPage() {
     update({ step: state.step + 1 });
   };
 
+  const prevStep = () => {
+    if (state.step <= 0) return;
+    setTypingDone(false);
+    // Skip sub-steps (6.5 → 6)
+    const prev = state.step === 6.5 ? 6 : Math.floor(state.step) - 1;
+    update({ step: prev });
+  };
+
   const onTypingComplete = useCallback(() => {
     setTypingDone(true);
   }, []);
@@ -760,6 +768,16 @@ function SearchPage() {
         <AnimatePresence mode="wait">
           {renderStep()}
         </AnimatePresence>
+
+        {/* Back button */}
+        {state.step > 0 && state.step < 12 && (
+          <button
+            onClick={prevStep}
+            className="mt-8 font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors"
+          >
+            &larr; back
+          </button>
+        )}
       </div>
 
       <LetterModal
