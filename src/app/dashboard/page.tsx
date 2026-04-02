@@ -1,13 +1,27 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getAuthClient } from "@/lib/supabase";
 import { usePipeline } from "@/hooks/usePipeline";
 import PipelineCard from "@/components/PipelineCard";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
   const { items, loaded, advanceStep, removeItem } = usePipeline();
 
-  if (!loaded) {
+  useEffect(() => {
+    const supabase = getAuthClient();
+    if (!supabase) { router.push("/login"); return; }
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) router.push("/login");
+      else setAuthChecked(true);
+    });
+  }, [router]);
+
+  if (!authChecked || !loaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="font-mono text-sm text-[var(--text-dim)]">Loading...</p>

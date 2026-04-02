@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useCallback, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { getAuthClient } from "@/lib/supabase";
 import { AnimatePresence, motion } from "framer-motion";
 import { v4 as uuidv4 } from "uuid";
 import TypedPrompt from "@/components/TypedPrompt";
@@ -81,6 +82,16 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialSong = searchParams.get("song") || "";
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const supabase = getAuthClient();
+    if (!supabase) { router.push("/login"); return; }
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) router.push("/login");
+      else setAuthChecked(true);
+    });
+  }, [router]);
 
   const [state, setState] = useState<SearchState>({
     step: 0,
@@ -726,6 +737,10 @@ function SearchPage() {
         return null;
     }
   };
+
+  if (!authChecked) {
+    return <div className="min-h-screen" />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
