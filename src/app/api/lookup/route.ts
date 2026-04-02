@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { queryInternalDB } from "@/lib/lookup/internal";
 import { inferOwnership } from "@/lib/claude";
 import { mergeResults } from "@/lib/lookup/merge";
-import { lookupDemoData } from "@/lib/demo-data";
 import { createServerClient } from "@/lib/supabase";
 
 export async function POST(request: Request) {
@@ -25,28 +24,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Step 1: Check demo data first (works without Supabase)
-    const demoMatch = lookupDemoData(songTitle, originalArtist);
-    if (demoMatch) {
-      const merged = mergeResults({
-        internal: {
-          master: demoMatch.master,
-          publishing: demoMatch.publishing,
-          isProductionLibrary: demoMatch.isProductionLibrary,
-          libraryName: demoMatch.libraryName,
-          flatBuyoutEligible: demoMatch.flatBuyoutEligible,
-        },
-        claude: null,
-        originalTimingStart,
-        originalTimingEnd,
-        newTimingStart,
-        newTimingEnd,
-        distributorName,
-      });
-      return NextResponse.json(merged);
-    }
-
-    // Step 2: Query internal Supabase database
+    // Step 1: Query internal Supabase database
     let internalResult = null;
     try {
       internalResult = await queryInternalDB(songTitle, originalArtist);
