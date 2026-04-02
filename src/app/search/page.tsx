@@ -681,11 +681,20 @@ function SearchPage() {
 
                   {/* No results */}
                   {!results?.master && !results?.publishing && (
-                    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6">
-                      <p className="font-mono text-sm text-[var(--text-mid)]">
-                        No ownership data found. Try checking the song title and artist spelling,
-                        or contact us for manual research.
+                    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center space-y-3">
+                      <p className="font-display font-bold text-lg text-[var(--text)]">
+                        Not in our database yet
                       </p>
+                      <p className="font-mono text-sm text-[var(--text-mid)]">
+                        We don&apos;t have verified ownership data for this song.
+                        Double-check the spelling, or reach out and we&apos;ll research it manually.
+                      </p>
+                      <a
+                        href="mailto:clearthewaxmusic@gmail.com?subject=Song%20Research%20Request"
+                        className="inline-block font-mono text-sm text-[var(--accent)] hover:opacity-70 transition-opacity"
+                      >
+                        clearthewaxmusic@gmail.com
+                      </a>
                     </div>
                   )}
 
