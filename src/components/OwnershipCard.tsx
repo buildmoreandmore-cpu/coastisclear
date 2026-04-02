@@ -6,20 +6,13 @@ import type { OwnershipResult, Writer } from "@/types";
 interface OwnershipCardProps {
   data: OwnershipResult;
   delay?: number;
-  songTitle?: string;
-  artist?: string;
-  onRequestVerification?: () => void;
 }
 
 export default function OwnershipCard({
   data,
   delay = 0,
-  songTitle,
-  artist,
-  onRequestVerification,
 }: OwnershipCardProps) {
   const [copied, setCopied] = useState(false);
-  const [requested, setRequested] = useState(false);
 
   const copyEmail = async () => {
     if (!data.email) return;
@@ -46,27 +39,6 @@ export default function OwnershipCard({
       : data.confidence >= 40
         ? "Partial Match"
         : "Not Verified";
-
-  const handleRequestVerification = async () => {
-    if (requested) return;
-    try {
-      await fetch("/api/admin/search-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          song_title: songTitle || "Unknown",
-          artist: artist || "Unknown",
-          found_in_db: false,
-          source: "verification_request",
-          notes: `User requested verification of AI-inferred ${data.type} rights. Holder: ${data.holder}`,
-        }),
-      });
-    } catch {
-      // Don't block UI if this fails
-    }
-    setRequested(true);
-    onRequestVerification?.();
-  };
 
   return (
     <div
@@ -224,21 +196,12 @@ export default function OwnershipCard({
         )}
       </div>
 
-      {/* Request Verification CTA for AI-inferred results */}
+      {/* Pipeline CTA for AI-inferred results */}
       {isInferred && (
-        <div className="mt-5 pt-4 border-t border-[var(--border)]">
-          {requested ? (
-            <p className="font-mono text-xs text-[var(--success)] text-center">
-              Verification requested — we&apos;ll research this and update our database.
-            </p>
-          ) : (
-            <button
-              onClick={handleRequestVerification}
-              className="w-full py-2.5 border border-[var(--border-active)] text-[var(--text)] font-mono text-xs rounded-lg hover:bg-[var(--accent-soft)] transition-colors"
-            >
-              Request Verification
-            </button>
-          )}
+        <div className="mt-5 pt-4 border-t border-[var(--border)] text-center space-y-2">
+          <p className="font-mono text-xs text-[var(--text-mid)]">
+            Add this to your pipeline and we&apos;ll update you when we have verified contact information.
+          </p>
         </div>
       )}
 
