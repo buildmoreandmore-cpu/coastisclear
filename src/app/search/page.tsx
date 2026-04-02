@@ -9,7 +9,6 @@ import TypedPrompt from "@/components/TypedPrompt";
 import OptionPills from "@/components/OptionPills";
 import ScanningState from "@/components/ScanningState";
 import OwnershipCard from "@/components/OwnershipCard";
-
 import ProminenceSignal from "@/components/ProminenceSignal";
 import LetterModal from "@/components/LetterModal";
 import Toast from "@/components/Toast";
@@ -35,12 +34,6 @@ function createSteps(): PipelineStep[] {
     completed: false,
   }));
 }
-
-const DURATION_OPTIONS = [
-  { value: "under_5s", label: "Under 5 seconds" },
-  { value: "5_15s", label: "5–15 seconds" },
-  { value: "15_plus", label: "15+ seconds" },
-];
 
 const USE_OPTIONS = [
   { value: "commercial", label: "Commercial release" },
@@ -132,8 +125,12 @@ function SearchPage() {
   const prevStep = () => {
     if (state.step <= 0) return;
     setTypingDone(false);
-    // Skip sub-steps (6.5 → 6)
-    const prev = state.step === 6.5 ? 6 : Math.floor(state.step) - 1;
+    const prev = state.step === 8.5 ? 8 : Math.floor(state.step) - 1;
+    // Don't go back past results (step 3)
+    if (prev < 4 && state.step >= 4) {
+      update({ step: 3 });
+      return;
+    }
     update({ step: prev });
   };
 
@@ -142,17 +139,13 @@ function SearchPage() {
   }, []);
 
   useEffect(() => {
-    if (typingDone && inputRef.current) {
-      inputRef.current.focus();
-    }
-    if (typingDone && textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    if (typingDone && inputRef.current) inputRef.current.focus();
+    if (typingDone && textareaRef.current) textareaRef.current.focus();
   }, [typingDone]);
 
-  // Auto-fire lookup when we reach scanning step
+  // Auto-fire lookup when we reach scanning step (step 2)
   useEffect(() => {
-    if (state.step === 12 && state.lookupStatus === "idle") {
+    if (state.step === 2 && state.lookupStatus === "idle") {
       runLookup();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -246,7 +239,7 @@ function SearchPage() {
 
       await Promise.all(promises);
     } catch {
-      // Silently fail individual letters
+      // Silently fail
     } finally {
       setLetterLoading(false);
     }
@@ -258,7 +251,7 @@ function SearchPage() {
       id: uuidv4(),
       requestorName: state.requestorName || undefined,
       requestorCompany: state.requestorCompany || undefined,
-      newSongTitle: state.newSongTitle,
+      newSongTitle: state.newSongTitle || state.sampledSongTitle,
       sampledSongTitle: state.sampledSongTitle,
       originalArtist: state.originalArtist,
       referenceUrl: state.referenceUrl || undefined,
@@ -268,7 +261,7 @@ function SearchPage() {
       newTimingEnd: state.newTimingEnd || undefined,
       sampleUseDescription: state.sampleUseDescription || undefined,
       sampleUseTags: state.sampleUseTags.length ? state.sampleUseTags : undefined,
-      intendedUse: state.intendedUse,
+      intendedUse: state.intendedUse || "independent",
       releaseContext: state.releaseContext || undefined,
       distributorName: state.distributorName || undefined,
       master: {
@@ -329,18 +322,21 @@ function SearchPage() {
     update({ sampleUseTags: tags });
   };
 
-  // Determine if distributor step should be skipped
   const needsDistributor = state.releaseContext === "distributor" || state.releaseContext === "independent_label";
+
+  // Determine which phase we're in for progress display
+  const inLetterMode = state.step >= 4;
+  const totalDots = inLetterMode ? 12 : 3;
 
   const renderStep = () => {
     switch (state.step) {
-      // ─── ABOUT THE SAMPLE ───
+      // ─── PHASE 1: SEARCH (2 steps → results) ───
 
-      // Step 0: Sampled song title (first question)
+      // Step 0: Song title
       case 0:
         return (
           <StepContainer key={0}>
-            <TypedPrompt text="What's the name of the song you're sampling?" onComplete={onTypingComplete} />
+            <TypedPrompt text="What song are you sampling?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
                 ref={inputRef}
@@ -352,7 +348,7 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 1: Original artist
+      // Step 1: Artist
       case 1:
         return (
           <StepContainer key={1}>
@@ -367,12 +363,130 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // ─── ABOUT YOU ───
-
-      // Step 2: Your name
+      // Step 2: Scanning
       case 2:
+        if (state.lookupStatus === "done") {
+          update({ step: 3 });
+          return null;
+        }
         return (
           <StepContainer key={2}>
+            <ScanningState
+              phases={[
+                "Searching verified rights database...",
+                "Matching ownership records...",
+                "Building clearance profile...",
+              ]}
+              onComplete={() => {
+                if (state.lookupStatus === "done") {
+                  update({ step: 3 });
+                }
+              }}
+            />
+          </StepContainer>
+        );
+
+      // Step 3: Results
+      case 3: {
+        const results = state.lookupResults;
+        return (
+          <StepContainer key={3}>
+            <TypedPrompt
+              text={`Here's what we found for "${state.sampledSongTitle}" by ${state.originalArtist}.`}
+              onComplete={onTypingComplete}
+            />
+
+            {typingDone && (
+              <div className="mt-8 space-y-6 w-full">
+                {/* Prominence Signal */}
+                {results?.prominenceSignal && (
+                  <ProminenceSignal
+                    originalTimingStart={state.originalTimingStart}
+                    originalTimingEnd={state.originalTimingEnd}
+                    newTimingStart={state.newTimingStart}
+                    newTimingEnd={state.newTimingEnd}
+                    signal={results.prominenceSignal.signal}
+                    description={results.prominenceSignal.description}
+                    originalDuration={results.prominenceSignal.originalDuration}
+                    newDuration={results.prominenceSignal.newDuration}
+                    prominence={results.prominenceSignal.prominence}
+                  />
+                )}
+
+                {/* Publishing Card */}
+                {results?.publishing && (
+                  <OwnershipCard data={results.publishing} delay={0} />
+                )}
+
+                {/* Master Card */}
+                {results?.master && (
+                  <OwnershipCard data={results.master} delay={200} />
+                )}
+
+                {/* No results */}
+                {!results?.master && !results?.publishing && (
+                  <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center space-y-3">
+                    <p className="font-display font-bold text-lg text-[var(--text)]">
+                      Not in our database yet
+                    </p>
+                    <p className="font-mono text-sm text-[var(--text-mid)]">
+                      We don&apos;t have verified ownership data for this song.
+                      Double-check the spelling, or reach out and we&apos;ll research it manually.
+                    </p>
+                    <a
+                      href="mailto:clearthewaxmusic@gmail.com?subject=Song%20Research%20Request"
+                      className="inline-block font-mono text-sm text-[var(--accent)] hover:opacity-70 transition-opacity"
+                    >
+                      clearthewaxmusic@gmail.com
+                    </a>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div className="flex flex-col gap-3 pt-4">
+                  {(results?.master || results?.publishing) && (
+                    <>
+                      <button
+                        onClick={() => {
+                          setTypingDone(false);
+                          update({ step: 4 });
+                        }}
+                        className="w-full px-6 py-3 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 transition-colors"
+                      >
+                        Draft Clearance Letter
+                      </button>
+                      <p className="font-mono text-xs text-[var(--text-dim)] text-center -mt-1">
+                        We&apos;ll ask a few details about your project to generate a ready-to-send letter.
+                      </p>
+                    </>
+                  )}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={addToPipeline}
+                      className="flex-1 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] transition-colors"
+                    >
+                      Add to Pipeline
+                    </button>
+                    <button
+                      onClick={() => router.push("/search")}
+                      className="flex-1 px-6 py-3 border border-[var(--border)] text-[var(--text-mid)] font-mono text-sm rounded-lg hover:border-[var(--border-active)] hover:text-[var(--accent)] transition-colors"
+                    >
+                      Search Another
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </StepContainer>
+        );
+      }
+
+      // ─── PHASE 2: LETTER DETAILS (optional, only if they clicked "Draft Letter") ───
+
+      // Step 4: Your name
+      case 4:
+        return (
+          <StepContainer key={4}>
             <TypedPrompt text="What's your name?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -384,10 +498,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 3: Company / label
-      case 3:
+      // Step 5: Company
+      case 5:
         return (
-          <StepContainer key={3}>
+          <StepContainer key={5}>
             <TypedPrompt text="What label or company are you with?" onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-3">
@@ -407,10 +521,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 4: New song title
-      case 4:
+      // Step 6: New song title
+      case 6:
         return (
-          <StepContainer key={4}>
+          <StepContainer key={6}>
             <TypedPrompt text="What's the name of your new song?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -422,10 +536,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 5: Intended use
-      case 5:
+      // Step 7: Intended use
+      case 7:
         return (
-          <StepContainer key={5}>
+          <StepContainer key={7}>
             <TypedPrompt text="What's this for?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -439,10 +553,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 6: Release context
-      case 6:
+      // Step 8: Release context
+      case 8:
         return (
-          <StepContainer key={6}>
+          <StepContainer key={8}>
             <TypedPrompt text="Who's releasing this?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -451,7 +565,7 @@ function SearchPage() {
                   update({ releaseContext: v });
                   if (v === "distributor" || v === "independent_label") {
                     setTypingDone(false);
-                    update({ step: 6.5 } as any);
+                    update({ step: 8.5 } as any);
                   } else {
                     nextStep();
                   }
@@ -461,33 +575,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 7: Reference URL
-      case 7:
+      // Step 9: Original timing
+      case 9:
         return (
-          <StepContainer key={7}>
-            <TypedPrompt text="Can you drop a link to the original track?" onComplete={onTypingComplete} />
-            {typingDone && (
-              <div className="mt-6 space-y-3">
-                <TextInput
-                  ref={inputRef}
-                  placeholder="YouTube, Spotify, or SoundCloud link"
-                  onSubmit={(v) => handleTextSubmit("referenceUrl", v)}
-                />
-                <button
-                  onClick={nextStep}
-                  className="font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors"
-                >
-                  Skip — I don&apos;t have a link right now
-                </button>
-              </div>
-            )}
-          </StepContainer>
-        );
-
-      // Step 8: Original timing
-      case 8:
-        return (
-          <StepContainer key={8}>
+          <StepContainer key={9}>
             <TypedPrompt
               text="Where in the original track does your sample start and end?"
               onComplete={onTypingComplete}
@@ -504,10 +595,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 9: New timing
-      case 9:
+      // Step 10: New timing
+      case 10:
         return (
-          <StepContainer key={9}>
+          <StepContainer key={10}>
             <TypedPrompt
               text="Where does this sample appear in your new track?"
               onComplete={onTypingComplete}
@@ -524,10 +615,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 10: Sample use description + tags
-      case 10:
+      // Step 11: Sample use description + tags → then generate letter
+      case 11:
         return (
-          <StepContainer key={10}>
+          <StepContainer key={11}>
             <TypedPrompt text="Describe how you're using the sample." onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-4">
@@ -556,28 +647,28 @@ function SearchPage() {
                       e.preventDefault();
                       const val = (e.target as HTMLTextAreaElement).value;
                       update({ sampleUseDescription: val });
-                      nextStep();
+                      generateLetters();
                     }
                   }}
                 />
                 <button
-                  onClick={() => nextStep()}
-                  className="font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors"
+                  onClick={() => {
+                    generateLetters();
+                  }}
+                  className="font-mono text-sm text-[var(--accent)] hover:opacity-70 transition-colors"
                 >
-                  {state.sampleUseTags.length > 0 ? "Continue with selected tags" : "Skip"}
+                  {state.sampleUseTags.length > 0 ? "Generate Letter" : "Skip & Generate Letter"}
                 </button>
               </div>
             )}
           </StepContainer>
         );
 
-      // Step 11: nextStep() advances to 11, which falls to default
-
       default:
         // Distributor sub-step
-        if (state.step === 6.5) {
+        if (state.step === 8.5) {
           return (
-            <StepContainer key="6.5">
+            <StepContainer key="8.5">
               <TypedPrompt text="Which one?" onComplete={onTypingComplete} />
               {typingDone && (
                 <TextInput
@@ -586,130 +677,9 @@ function SearchPage() {
                   onSubmit={(v) => {
                     update({ distributorName: v });
                     setTypingDone(false);
-                    update({ step: 7 });
+                    update({ step: 9 });
                   }}
                 />
-              )}
-            </StepContainer>
-          );
-        }
-
-        // Step 11 → auto-advance to scanning
-        if (state.step === 11) {
-          update({ step: 12 });
-          return null;
-        }
-
-        // Step 12: Scanning
-        if (state.step === 12 && state.lookupStatus !== "done") {
-          return (
-            <StepContainer key={12}>
-              <ScanningState
-                phases={[
-                  "Searching internal rights database...",
-                  "Analyzing ownership data...",
-                  "Building clearance profile...",
-                ]}
-                onComplete={() => {
-                  if (state.lookupStatus === "done") {
-                    update({ step: 13 });
-                  }
-                }}
-              />
-            </StepContainer>
-          );
-        }
-
-        if (state.step === 12 && state.lookupStatus === "done") {
-          update({ step: 13 });
-          return null;
-        }
-
-        // Step 13: Results
-        if (state.step === 13) {
-          const results = state.lookupResults;
-          return (
-            <StepContainer key={13}>
-              <TypedPrompt
-                text={`Here's what we found for "${state.sampledSongTitle}" by ${state.originalArtist}.`}
-                onComplete={onTypingComplete}
-              />
-
-              {typingDone && (
-                <div className="mt-8 space-y-6 w-full">
-                  {/* Prominence Signal */}
-                  {results?.prominenceSignal && (
-                    <ProminenceSignal
-                      originalTimingStart={state.originalTimingStart}
-                      originalTimingEnd={state.originalTimingEnd}
-                      newTimingStart={state.newTimingStart}
-                      newTimingEnd={state.newTimingEnd}
-                      signal={results.prominenceSignal.signal}
-                      description={results.prominenceSignal.description}
-                      originalDuration={results.prominenceSignal.originalDuration}
-                      newDuration={results.prominenceSignal.newDuration}
-                      prominence={results.prominenceSignal.prominence}
-                    />
-                  )}
-
-                  {/* Publishing Card */}
-                  {results?.publishing && (
-                    <OwnershipCard data={results.publishing} delay={0} />
-                  )}
-
-                  {/* Master Card */}
-                  {results?.master && (
-                    <OwnershipCard data={results.master} delay={200} />
-                  )}
-
-                  {/* No results */}
-                  {!results?.master && !results?.publishing && (
-                    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center space-y-3">
-                      <p className="font-display font-bold text-lg text-[var(--text)]">
-                        Not in our database yet
-                      </p>
-                      <p className="font-mono text-sm text-[var(--text-mid)]">
-                        We don&apos;t have verified ownership data for this song.
-                        Double-check the spelling, or reach out and we&apos;ll research it manually.
-                      </p>
-                      <a
-                        href="mailto:clearthewaxmusic@gmail.com?subject=Song%20Research%20Request"
-                        className="inline-block font-mono text-sm text-[var(--accent)] hover:opacity-70 transition-opacity"
-                      >
-                        clearthewaxmusic@gmail.com
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Disclaimer */}
-                  <p className="font-mono text-xs text-[var(--text-dim)] text-center">
-                    We find who owns it and how to reach them. You handle the deal.
-                    <br />
-                    Rates vary. These are industry benchmarks, not quotes.
-                  </p>
-
-                  {/* Action buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    <button
-                      onClick={generateLetters}
-                      className="flex-1 px-6 py-3 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 transition-colors"
-                    >
-                      Draft Clearance Letter
-                    </button>
-                    <button
-                      onClick={addToPipeline}
-                      className="flex-1 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] transition-colors"
-                    >
-                      Add to Pipeline
-                    </button>
-                    <button
-                      onClick={() => router.push("/search")}
-                      className="flex-1 px-6 py-3 border border-[var(--border)] text-[var(--text-mid)] font-mono text-sm rounded-lg hover:border-[var(--border-active)] hover:text-[var(--accent)] transition-colors"
-                    >
-                      Search Another
-                    </button>
-                  </div>
-                </div>
               )}
             </StepContainer>
           );
@@ -724,7 +694,7 @@ function SearchPage() {
               </p>
               <button
                 onClick={() => {
-                  update({ lookupStatus: "idle", step: 12 });
+                  update({ lookupStatus: "idle", step: 2 });
                 }}
                 className="mt-4 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg"
               >
@@ -747,14 +717,17 @@ function SearchPage() {
       <div className="w-full max-w-2xl">
         {/* Progress dots */}
         <div className="flex gap-1.5 justify-center mb-12">
-          {Array.from({ length: 13 }, (_, i) => (
-            <div
-              key={i}
-              className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
-                i <= Math.floor(state.step) ? "bg-[var(--accent)]" : "bg-[var(--text-dim)]"
-              }`}
-            />
-          ))}
+          {Array.from({ length: totalDots }, (_, i) => {
+            const stepIndex = inLetterMode ? i : i;
+            return (
+              <div
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+                  stepIndex <= Math.floor(state.step) ? "bg-[var(--accent)]" : "bg-[var(--text-dim)]"
+                }`}
+              />
+            );
+          })}
         </div>
 
         <AnimatePresence mode="wait">
@@ -762,7 +735,7 @@ function SearchPage() {
         </AnimatePresence>
 
         {/* Back button */}
-        {state.step > 0 && state.step < 12 && (
+        {state.step > 0 && state.step !== 3 && state.step < 12 && (
           <button
             onClick={prevStep}
             className="mt-8 font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors"
