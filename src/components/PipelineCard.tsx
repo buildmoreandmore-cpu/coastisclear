@@ -15,6 +15,8 @@ interface PipelineCardProps {
     stepNumber: number
   ) => void;
   onDelete: (id: string) => void;
+  onViewLetter: (item: PipelineItem) => void;
+  onRegenerateLetter: (item: PipelineItem) => void;
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -26,7 +28,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   not_started: { label: "NOT STARTED", color: "var(--text-dim)" },
 };
 
-export default function PipelineCard({ item, onAdvanceStep, onDelete }: PipelineCardProps) {
+export default function PipelineCard({ item, onAdvanceStep, onDelete, onViewLetter, onRegenerateLetter }: PipelineCardProps) {
   const [expanded, setExpanded] = useState(false);
   const combined = getCombinedStatus(item);
   const statusInfo = STATUS_LABELS[combined] || STATUS_LABELS.not_started;
@@ -103,6 +105,24 @@ export default function PipelineCard({ item, onAdvanceStep, onDelete }: Pipeline
           <div className="border-t border-[var(--border)]" />
 
           <ActivityLog entries={item.activityLog} />
+
+          {/* Letter actions */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => onViewLetter(item)}
+              className="flex-1 px-4 py-2.5 border border-[var(--border-active)] text-[var(--text)] font-mono text-xs rounded-lg hover:bg-[var(--accent-soft)] transition-all"
+            >
+              {item.letterDrafted ? "View / Edit Letter" : "Draft Letter"}
+            </button>
+            {item.letterDrafted && (
+              <button
+                onClick={() => onRegenerateLetter(item)}
+                className="px-4 py-2.5 border border-[var(--border)] text-[var(--text-dim)] font-mono text-xs rounded-lg hover:border-[var(--border-active)] hover:text-[var(--text)] transition-all"
+              >
+                Regenerate
+              </button>
+            )}
+          </div>
 
           {/* Delete */}
           <div className="pt-2">

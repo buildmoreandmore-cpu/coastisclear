@@ -108,6 +108,19 @@ export function usePipeline() {
     [updateItem]
   );
 
+  const updateLetters = useCallback(
+    (itemId: string, masterLetter: string, publishingLetter: string) => {
+      updateItem(itemId, (item) => ({
+        ...item,
+        masterLetter: masterLetter || undefined,
+        publishingLetter: publishingLetter || undefined,
+        letterDrafted: !!(masterLetter || publishingLetter),
+        updatedAt: new Date().toISOString(),
+      }));
+    },
+    [updateItem]
+  );
+
   const setQuoteExpiration = useCallback(
     (itemId: string, expiration: string, amount?: string, terms?: string) => {
       updateItem(itemId, (item) => ({
@@ -129,6 +142,7 @@ export function usePipeline() {
     removeItem,
     advanceStep,
     updateSideStatus,
+    updateLetters,
     setQuoteExpiration,
   };
 }

@@ -81,8 +81,9 @@ Base your inference on known industry relationships, catalog ownership history, 
     });
 
     let text = response.choices[0]?.message?.content || "";
-    // Strip any <think>...</think> blocks
+    // Strip <think> blocks (closed or unclosed if model hit token limit)
     text = text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
+    text = text.replace(/<think>[\s\S]*/g, "").trim();
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
 
@@ -180,7 +181,7 @@ export async function generateLetter(context: LetterContext): Promise<string> {
   try {
     const response = await client.chat.completions.create({
       model: "MiniMax-M2",
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [
         {
           role: "user",

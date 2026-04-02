@@ -1,16 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getAuthClient } from "@/lib/supabase";
 import { usePipeline } from "@/hooks/usePipeline";
 import PipelineCard from "@/components/PipelineCard";
+import LetterModal from "@/components/LetterModal";
+import type { PipelineItem } from "@/types";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
-  const { items, loaded, advanceStep, removeItem } = usePipeline();
+  const { items, loaded, advanceStep, removeItem, updateLetters } = usePipeline();
+
+  // Letter modal state
+  const [letterModalOpen, setLetterModalOpen] = useState(false);
+  const [letterLoading, setLetterLoading] = useState(false);
+  const [activePipelineId, setActivePipelineId] = useState<string | null>(null);
+  const [masterLetter, setMasterLetter] = useState<string | undefined>();
+  const [publishingLetter, setPublishingLetter] = useState<string | undefined>();
 
   useEffect(() => {
     const supabase = getAuthClient();
@@ -20,6 +29,101 @@ export default function DashboardPage() {
       else setAuthChecked(true);
     });
   }, [router]);
+
+  const generateLettersForItem = useCallback(async (item: PipelineItem) => {
+    setLetterLoading(true);
+    setMasterLetter(undefined);
+    setPublishingLetter(undefined);
+
+    const base = {
+      newSongTitle: item.newSongTitle,
+      sampledSongTitle: item.sampledSongTitle,
+      originalArtist: item.originalArtist,
+      sampleUseDescription: item.sampleUseDescription,
+      originalTimingStart: item.originalTimingStart,
+      originalTimingEnd: item.originalTimingEnd,
+      newTimingStart: item.newTimingStart,
+      newTimingEnd: item.newTimingEnd,
+      intendedUse: item.intendedUse,
+      releaseContext: item.releaseContext,
+      distributorName: item.distributorName,
+    };
+
+    try {
+      const promises = [];
+
+      if (item.master.holder && item.master.holder !== "Unknown") {
+        promises.push(
+          fetch("/api/letter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...base,
+              rightsType: "master",
+              holderName: item.master.holder,
+              contactName: item.master.contactName,
+              department: "Sample Licensing",
+            }),
+          })
+            .then((r) => r.json())
+            .then((d) => setMasterLetter(d.letter))
+        );
+      }
+
+      if (item.publishing.holder && item.publishing.holder !== "Unknown") {
+        promises.push(
+          fetch("/api/letter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...base,
+              rightsType: "publishing",
+              holderName: item.publishing.holder,
+              contactName: item.publishing.contactName,
+              department: "Sample Licensing",
+              publisher: item.publishing.holder,
+              administrator: item.publishing.administrator,
+            }),
+          })
+            .then((r) => r.json())
+            .then((d) => setPublishingLetter(d.letter))
+        );
+      }
+
+      await Promise.all(promises);
+    } catch {
+      // Silently fail
+    } finally {
+      setLetterLoading(false);
+    }
+  }, []);
+
+  const handleViewLetter = useCallback((item: PipelineItem) => {
+    setActivePipelineId(item.id);
+    setLetterModalOpen(true);
+
+    if (item.masterLetter || item.publishingLetter) {
+      // Show saved letters
+      setMasterLetter(item.masterLetter);
+      setPublishingLetter(item.publishingLetter);
+      setLetterLoading(false);
+    } else {
+      // Generate new letters
+      generateLettersForItem(item);
+    }
+  }, [generateLettersForItem]);
+
+  const handleRegenerateLetter = useCallback((item: PipelineItem) => {
+    setActivePipelineId(item.id);
+    setLetterModalOpen(true);
+    generateLettersForItem(item);
+  }, [generateLettersForItem]);
+
+  const handleSaveLetters = useCallback((master: string, publishing: string) => {
+    if (activePipelineId) {
+      updateLetters(activePipelineId, master, publishing);
+    }
+  }, [activePipelineId, updateLetters]);
 
   if (!authChecked || !loaded) {
     return (
@@ -76,10 +180,22 @@ export default function DashboardPage() {
               item={item}
               onAdvanceStep={advanceStep}
               onDelete={removeItem}
+              onViewLetter={handleViewLetter}
+              onRegenerateLetter={handleRegenerateLetter}
             />
           ))}
         </div>
       )}
+
+      {/* Letter Modal */}
+      <LetterModal
+        isOpen={letterModalOpen}
+        onClose={() => setLetterModalOpen(false)}
+        masterLetter={masterLetter}
+        publishingLetter={publishingLetter}
+        isLoading={letterLoading}
+        onSave={handleSaveLetters}
+      />
     </div>
   );
 }

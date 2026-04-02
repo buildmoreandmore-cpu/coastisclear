@@ -8,6 +8,7 @@ interface LetterModalProps {
   masterLetter?: string;
   publishingLetter?: string;
   isLoading: boolean;
+  onSave?: (masterLetter: string, publishingLetter: string) => void;
 }
 
 export default function LetterModal({
@@ -16,6 +17,7 @@ export default function LetterModal({
   masterLetter,
   publishingLetter,
   isLoading,
+  onSave,
 }: LetterModalProps) {
   const [activeTab, setActiveTab] = useState<"master" | "publishing">("publishing");
   const [copied, setCopied] = useState(false);
@@ -200,6 +202,18 @@ export default function LetterModal({
           >
             Download PDF
           </button>
+          {onSave && (
+            <button
+              onClick={() => {
+                onSave(editedMaster, editedPublishing);
+                onClose();
+              }}
+              disabled={isLoading}
+              className="flex-1 px-4 py-2.5 border border-[var(--success)]/50 text-[var(--success)] font-mono text-sm rounded-lg hover:bg-[var(--success)]/10 disabled:opacity-30 transition-all"
+            >
+              Save
+            </button>
+          )}
         </div>
       </div>
     </div>
