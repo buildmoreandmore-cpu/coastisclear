@@ -209,14 +209,15 @@ The letter should:
 8. Be under 350 words
 9. Leave placeholders for: [ARTIST NAME], [RELEASE DATE], [LABEL/DISTRIBUTOR], [ATTORNEY NAME]
 
-Output the letter only. No preamble. No explanation.`,
+Output the letter only. No preamble. No explanation. Do not include any thinking, reasoning, or analysis — only the final letter text.`,
         },
       ],
     });
 
     let text = response.choices[0]?.message?.content || "";
-    // Strip any <think>...</think> blocks from the response
+    // Strip <think> blocks (closed or unclosed if model hit token limit)
     text = text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
+    text = text.replace(/<think>[\s\S]*/g, "").trim();
     return text || generateDemoLetter(context);
   } catch {
     return generateDemoLetter(context);
