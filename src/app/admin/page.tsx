@@ -53,20 +53,19 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Admin gate — check if current user is an admin
+  // Edit states
+  const [editingSongId, setEditingSongId] = useState<string | null>(null);
+  const [editSong, setEditSong] = useState({ song_title: "", artist: "", master_owner: "", writer: "", isrc: "" });
+  const [editingHolderId, setEditingHolderId] = useState<string | null>(null);
+  const [editHolder, setEditHolder] = useState({ name: "", type: "", contact_email: "", contact_phone: "", website: "" });
+
   useEffect(() => {
     const supabase = getAuthClient();
-    if (!supabase) {
-      router.push("/login");
-      return;
-    }
+    if (!supabase) { router.push("/login"); return; }
     supabase.auth.getUser().then(({ data }) => {
       const email = data.user?.email;
-      if (email && ADMIN_EMAILS.includes(email)) {
-        setAuthorized(true);
-      } else {
-        router.push("/search");
-      }
+      if (email && ADMIN_EMAILS.includes(email)) setAuthorized(true);
+      else router.push("/search");
       setChecking(false);
     });
   }, [router]);
@@ -85,7 +84,6 @@ export default function AdminPage() {
   const [holderPhone, setHolderPhone] = useState("");
   const [holderWebsite, setHolderWebsite] = useState("");
 
-  // CSV upload
   const [uploading, setUploading] = useState(false);
 
   const fetchSongs = useCallback(async () => {
@@ -104,9 +102,7 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    fetchSongs();
-    fetchHolders();
-    fetchRequests();
+    fetchSongs(); fetchHolders(); fetchRequests();
   }, [fetchSongs, fetchHolders, fetchRequests]);
 
   const flash = (msg: string) => {
@@ -114,6 +110,7 @@ export default function AdminPage() {
     setTimeout(() => setMessage(""), 3000);
   };
 
+  // Song CRUD
   const addSong = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!songTitle || !songArtist) return;
@@ -122,40 +119,48 @@ export default function AdminPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        song_title: songTitle,
-        artist: songArtist,
-        master_owner: songMaster || null,
-        writer: songWriter || null,
-        isrc: songIsrc || null,
+        song_title: songTitle, artist: songArtist,
+        master_owner: songMaster || null, writer: songWriter || null, isrc: songIsrc || null,
       }),
     });
     if (res.ok) {
       flash("Song added");
-      setSongTitle("");
-      setSongArtist("");
-      setSongMaster("");
-      setSongWriter("");
-      setSongIsrc("");
+      setSongTitle(""); setSongArtist(""); setSongMaster(""); setSongWriter(""); setSongIsrc("");
       fetchSongs();
-    } else {
-      const data = await res.json();
-      flash(data.error || "Failed to add song");
-    }
+    } else { const d = await res.json(); flash(d.error || "Failed"); }
     setLoading(false);
   };
 
+  const startEditSong = (s: Song) => {
+    setEditingSongId(s.id);
+    setEditSong({
+      song_title: s.song_title, artist: s.artist,
+      master_owner: s.master_owner || "", writer: s.writer || "", isrc: s.isrc || "",
+    });
+  };
+
+  const saveEditSong = async () => {
+    if (!editingSongId) return;
+    const res = await fetch("/api/admin/songs", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: editingSongId, ...editSong }),
+    });
+    if (res.ok) { flash("Song updated"); setEditingSongId(null); fetchSongs(); }
+    else { const d = await res.json(); flash(d.error || "Failed"); }
+  };
+
   const deleteSong = async (id: string) => {
+    if (!confirm("Delete this song?")) return;
     const res = await fetch("/api/admin/songs", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
-    if (res.ok) {
-      flash("Song deleted");
-      fetchSongs();
-    }
+    if (res.ok) { flash("Song deleted"); fetchSongs(); }
   };
 
+  // Rights holder CRUD
   const addHolder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!holderName) return;
@@ -164,25 +169,45 @@ export default function AdminPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: holderName,
-        type: holderType,
-        contact_email: holderEmail || null,
-        contact_phone: holderPhone || null,
-        website: holderWebsite || null,
+        name: holderName, type: holderType,
+        contact_email: holderEmail || null, contact_phone: holderPhone || null, website: holderWebsite || null,
       }),
     });
     if (res.ok) {
       flash("Rights holder added");
-      setHolderName("");
-      setHolderEmail("");
-      setHolderPhone("");
-      setHolderWebsite("");
+      setHolderName(""); setHolderEmail(""); setHolderPhone(""); setHolderWebsite("");
       fetchHolders();
-    } else {
-      const data = await res.json();
-      flash(data.error || "Failed to add rights holder");
-    }
+    } else { const d = await res.json(); flash(d.error || "Failed"); }
     setLoading(false);
+  };
+
+  const startEditHolder = (h: RightsHolder) => {
+    setEditingHolderId(h.id);
+    setEditHolder({
+      name: h.name, type: h.type,
+      contact_email: h.contact_email || "", contact_phone: h.contact_phone || "", website: h.website || "",
+    });
+  };
+
+  const saveEditHolder = async () => {
+    if (!editingHolderId) return;
+    const res = await fetch("/api/admin/rights-holders", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: editingHolderId, ...editHolder }),
+    });
+    if (res.ok) { flash("Rights holder updated"); setEditingHolderId(null); fetchHolders(); }
+    else { const d = await res.json(); flash(d.error || "Failed"); }
+  };
+
+  const deleteHolder = async (id: string) => {
+    if (!confirm("Delete this rights holder?")) return;
+    const res = await fetch("/api/admin/rights-holders", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) { flash("Rights holder deleted"); fetchHolders(); }
   };
 
   const handleCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -191,18 +216,12 @@ export default function AdminPage() {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch("/api/admin/import", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch("/api/admin/import", { method: "POST", body: formData });
     const data = await res.json();
     if (res.ok) {
       flash(`Imported ${data.count} ${data.type === "songs" ? "songs" : "rights holders"}`);
-      fetchSongs();
-      fetchHolders();
-    } else {
-      flash(data.error || "Import failed");
-    }
+      fetchSongs(); fetchHolders();
+    } else { flash(data.error || "Import failed"); }
     setUploading(false);
     e.target.value = "";
   };
@@ -216,6 +235,8 @@ export default function AdminPage() {
 
   const inputClass =
     "w-full bg-transparent border-b border-[var(--border-active)] outline-none font-mono text-sm text-[var(--text)] placeholder:text-[var(--text-dim)] py-2";
+  const editInputClass =
+    "w-full bg-[var(--bg)] border-b border-[var(--border-active)] outline-none font-mono text-xs text-[var(--text)] placeholder:text-[var(--text-dim)] py-1";
   const btnClass =
     "px-4 py-2 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:opacity-80 transition-opacity disabled:opacity-40";
 
@@ -235,14 +256,12 @@ export default function AdminPage() {
         Admin Dashboard
       </h1>
 
-      {/* Flash message */}
       {message && (
         <div className="mb-4 px-4 py-2 bg-[var(--surface)] border border-[var(--border-active)] rounded-lg font-mono text-sm text-[var(--text)]">
           {message}
         </div>
       )}
 
-      {/* Tabs */}
       <div className="flex gap-1 mb-8 overflow-x-auto">
         {tabs.map((t) => (
           <button
@@ -263,39 +282,12 @@ export default function AdminPage() {
       {tab === "songs" && (
         <div className="space-y-8">
           <form onSubmit={addSong} className="space-y-3 max-w-md">
-            <p className="font-display font-bold text-lg text-[var(--text)]">
-              Add Song
-            </p>
-            <input
-              className={inputClass}
-              placeholder="Song title *"
-              value={songTitle}
-              onChange={(e) => setSongTitle(e.target.value)}
-            />
-            <input
-              className={inputClass}
-              placeholder="Artist *"
-              value={songArtist}
-              onChange={(e) => setSongArtist(e.target.value)}
-            />
-            <input
-              className={inputClass}
-              placeholder="Master owner"
-              value={songMaster}
-              onChange={(e) => setSongMaster(e.target.value)}
-            />
-            <input
-              className={inputClass}
-              placeholder="Writer(s)"
-              value={songWriter}
-              onChange={(e) => setSongWriter(e.target.value)}
-            />
-            <input
-              className={inputClass}
-              placeholder="ISRC"
-              value={songIsrc}
-              onChange={(e) => setSongIsrc(e.target.value)}
-            />
+            <p className="font-display font-bold text-lg text-[var(--text)]">Add Song</p>
+            <input className={inputClass} placeholder="Song title *" value={songTitle} onChange={(e) => setSongTitle(e.target.value)} />
+            <input className={inputClass} placeholder="Artist *" value={songArtist} onChange={(e) => setSongArtist(e.target.value)} />
+            <input className={inputClass} placeholder="Master owner" value={songMaster} onChange={(e) => setSongMaster(e.target.value)} />
+            <input className={inputClass} placeholder="Writer(s)" value={songWriter} onChange={(e) => setSongWriter(e.target.value)} />
+            <input className={inputClass} placeholder="ISRC" value={songIsrc} onChange={(e) => setSongIsrc(e.target.value)} />
             <button type="submit" disabled={loading} className={btnClass}>
               {loading ? "Adding..." : "Add Song"}
             </button>
@@ -306,37 +298,44 @@ export default function AdminPage() {
               Songs in Database ({songs.length})
             </p>
             {songs.length === 0 ? (
-              <p className="font-mono text-sm text-[var(--text-dim)]">
-                No songs yet
-              </p>
+              <p className="font-mono text-sm text-[var(--text-dim)]">No songs yet</p>
             ) : (
               <div className="space-y-2">
                 {songs.map((s) => (
-                  <div
-                    key={s.id}
-                    className="flex items-center justify-between gap-4 px-4 py-3 bg-[var(--surface)] rounded-lg"
-                  >
-                    <div className="min-w-0">
-                      <p className="font-mono text-sm text-[var(--text)] truncate">
-                        {s.song_title} — {s.artist}
-                      </p>
-                      <p className="font-mono text-xs text-[var(--text-dim)]">
-                        {[
-                          s.master_owner && `Master: ${s.master_owner}`,
-                          s.publisher?.name && `Pub: ${s.publisher.name}`,
-                          s.label?.name && `Label: ${s.label.name}`,
-                          s.writer && `Writer: ${s.writer}`,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ") || "No ownership info"}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => deleteSong(s.id)}
-                      className="shrink-0 font-mono text-xs text-[var(--danger)] hover:opacity-70"
-                    >
-                      Delete
-                    </button>
+                  <div key={s.id} className="px-4 py-3 bg-[var(--surface)] rounded-lg">
+                    {editingSongId === s.id ? (
+                      <div className="space-y-2">
+                        <input className={editInputClass} placeholder="Song title" value={editSong.song_title} onChange={(e) => setEditSong({ ...editSong, song_title: e.target.value })} />
+                        <input className={editInputClass} placeholder="Artist" value={editSong.artist} onChange={(e) => setEditSong({ ...editSong, artist: e.target.value })} />
+                        <input className={editInputClass} placeholder="Master owner" value={editSong.master_owner} onChange={(e) => setEditSong({ ...editSong, master_owner: e.target.value })} />
+                        <input className={editInputClass} placeholder="Writer(s)" value={editSong.writer} onChange={(e) => setEditSong({ ...editSong, writer: e.target.value })} />
+                        <input className={editInputClass} placeholder="ISRC" value={editSong.isrc} onChange={(e) => setEditSong({ ...editSong, isrc: e.target.value })} />
+                        <div className="flex gap-3 pt-1">
+                          <button onClick={saveEditSong} className="font-mono text-xs text-[var(--success)] hover:opacity-70">Save</button>
+                          <button onClick={() => setEditingSongId(null)} className="font-mono text-xs text-[var(--text-dim)] hover:opacity-70">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="font-mono text-sm text-[var(--text)] truncate">
+                            {s.song_title} — {s.artist}
+                          </p>
+                          <p className="font-mono text-xs text-[var(--text-dim)]">
+                            {[
+                              s.master_owner && `Master: ${s.master_owner}`,
+                              s.publisher?.name && `Pub: ${s.publisher.name}`,
+                              s.label?.name && `Label: ${s.label.name}`,
+                              s.writer && `Writer: ${s.writer}`,
+                            ].filter(Boolean).join(" · ") || "No ownership info"}
+                          </p>
+                        </div>
+                        <div className="flex gap-3 shrink-0">
+                          <button onClick={() => startEditSong(s)} className="font-mono text-xs text-[var(--info)] hover:opacity-70">Edit</button>
+                          <button onClick={() => deleteSong(s.id)} className="font-mono text-xs text-[var(--danger)] hover:opacity-70">Delete</button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -349,44 +348,19 @@ export default function AdminPage() {
       {tab === "rights-holders" && (
         <div className="space-y-8">
           <form onSubmit={addHolder} className="space-y-3 max-w-md">
-            <p className="font-display font-bold text-lg text-[var(--text)]">
-              Add Rights Holder
-            </p>
-            <input
-              className={inputClass}
-              placeholder="Name / Company *"
-              value={holderName}
-              onChange={(e) => setHolderName(e.target.value)}
-            />
-            <select
-              value={holderType}
-              onChange={(e) => setHolderType(e.target.value)}
-              className={`${inputClass} bg-[var(--bg)]`}
-            >
+            <p className="font-display font-bold text-lg text-[var(--text)]">Add Rights Holder</p>
+            <input className={inputClass} placeholder="Name / Company *" value={holderName} onChange={(e) => setHolderName(e.target.value)} />
+            <select value={holderType} onChange={(e) => setHolderType(e.target.value)} className={`${inputClass} bg-[var(--bg)]`}>
               <option value="publisher">Publisher</option>
               <option value="label">Label</option>
+              <option value="both">Both (Label + Publisher)</option>
               <option value="distributor">Distributor</option>
               <option value="artist">Artist / Manager</option>
               <option value="library">Production Library</option>
             </select>
-            <input
-              className={inputClass}
-              placeholder="Contact email"
-              value={holderEmail}
-              onChange={(e) => setHolderEmail(e.target.value)}
-            />
-            <input
-              className={inputClass}
-              placeholder="Contact phone"
-              value={holderPhone}
-              onChange={(e) => setHolderPhone(e.target.value)}
-            />
-            <input
-              className={inputClass}
-              placeholder="Website"
-              value={holderWebsite}
-              onChange={(e) => setHolderWebsite(e.target.value)}
-            />
+            <input className={inputClass} placeholder="Contact email" value={holderEmail} onChange={(e) => setHolderEmail(e.target.value)} />
+            <input className={inputClass} placeholder="Contact phone" value={holderPhone} onChange={(e) => setHolderPhone(e.target.value)} />
+            <input className={inputClass} placeholder="Website" value={holderWebsite} onChange={(e) => setHolderWebsite(e.target.value)} />
             <button type="submit" disabled={loading} className={btnClass}>
               {loading ? "Adding..." : "Add Rights Holder"}
             </button>
@@ -397,28 +371,48 @@ export default function AdminPage() {
               Rights Holders ({holders.length})
             </p>
             {holders.length === 0 ? (
-              <p className="font-mono text-sm text-[var(--text-dim)]">
-                No rights holders yet
-              </p>
+              <p className="font-mono text-sm text-[var(--text-dim)]">No rights holders yet</p>
             ) : (
               <div className="space-y-2">
                 {holders.map((h) => (
-                  <div
-                    key={h.id}
-                    className="px-4 py-3 bg-[var(--surface)] rounded-lg"
-                  >
-                    <p className="font-mono text-sm text-[var(--text)]">
-                      {h.name}
-                      <span className="ml-2 text-xs text-[var(--text-dim)] bg-[var(--surface2)] px-2 py-0.5 rounded">
-                        {h.type}
-                      </span>
-                    </p>
-                    {(h.contact_email || h.contact_phone || h.website) && (
-                      <p className="font-mono text-xs text-[var(--text-dim)] mt-1">
-                        {[h.contact_email, h.contact_phone, h.website]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </p>
+                  <div key={h.id} className="px-4 py-3 bg-[var(--surface)] rounded-lg">
+                    {editingHolderId === h.id ? (
+                      <div className="space-y-2">
+                        <input className={editInputClass} placeholder="Name" value={editHolder.name} onChange={(e) => setEditHolder({ ...editHolder, name: e.target.value })} />
+                        <select value={editHolder.type} onChange={(e) => setEditHolder({ ...editHolder, type: e.target.value })} className={`${editInputClass} bg-[var(--bg)]`}>
+                          <option value="publisher">Publisher</option>
+                          <option value="label">Label</option>
+                          <option value="both">Both</option>
+                          <option value="distributor">Distributor</option>
+                          <option value="artist">Artist / Manager</option>
+                          <option value="library">Production Library</option>
+                        </select>
+                        <input className={editInputClass} placeholder="Contact email" value={editHolder.contact_email} onChange={(e) => setEditHolder({ ...editHolder, contact_email: e.target.value })} />
+                        <input className={editInputClass} placeholder="Contact phone" value={editHolder.contact_phone} onChange={(e) => setEditHolder({ ...editHolder, contact_phone: e.target.value })} />
+                        <input className={editInputClass} placeholder="Website" value={editHolder.website} onChange={(e) => setEditHolder({ ...editHolder, website: e.target.value })} />
+                        <div className="flex gap-3 pt-1">
+                          <button onClick={saveEditHolder} className="font-mono text-xs text-[var(--success)] hover:opacity-70">Save</button>
+                          <button onClick={() => setEditingHolderId(null)} className="font-mono text-xs text-[var(--text-dim)] hover:opacity-70">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="font-mono text-sm text-[var(--text)]">
+                            {h.name}
+                            <span className="ml-2 text-xs text-[var(--text-dim)] bg-[var(--surface2)] px-2 py-0.5 rounded">{h.type}</span>
+                          </p>
+                          {(h.contact_email || h.contact_phone || h.website) && (
+                            <p className="font-mono text-xs text-[var(--text-dim)] mt-1">
+                              {[h.contact_email, h.contact_phone, h.website].filter(Boolean).join(" · ")}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-3 shrink-0">
+                          <button onClick={() => startEditHolder(h)} className="font-mono text-xs text-[var(--info)] hover:opacity-70">Edit</button>
+                          <button onClick={() => deleteHolder(h.id)} className="font-mono text-xs text-[var(--danger)] hover:opacity-70">Delete</button>
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -431,40 +425,23 @@ export default function AdminPage() {
       {/* Search Requests Tab */}
       {tab === "search-requests" && (
         <div>
-          <p className="font-display font-bold text-lg text-[var(--text)] mb-1">
-            User Search Requests
-          </p>
-          <p className="font-mono text-xs text-[var(--text-dim)] mb-4">
-            Songs users searched for — shows what to add to the database
-          </p>
+          <p className="font-display font-bold text-lg text-[var(--text)] mb-1">User Search Requests</p>
+          <p className="font-mono text-xs text-[var(--text-dim)] mb-4">Songs users searched for — shows what to add to the database</p>
           {requests.length === 0 ? (
-            <p className="font-mono text-sm text-[var(--text-dim)]">
-              No search requests yet
-            </p>
+            <p className="font-mono text-sm text-[var(--text-dim)]">No search requests yet</p>
           ) : (
             <div className="space-y-2">
               {requests.map((r) => (
-                <div
-                  key={r.id}
-                  className="flex items-center justify-between gap-4 px-4 py-3 bg-[var(--surface)] rounded-lg"
-                >
+                <div key={r.id} className="flex items-center justify-between gap-4 px-4 py-3 bg-[var(--surface)] rounded-lg">
                   <div className="min-w-0">
-                    <p className="font-mono text-sm text-[var(--text)] truncate">
-                      {r.song_title} — {r.artist}
-                    </p>
+                    <p className="font-mono text-sm text-[var(--text)] truncate">{r.song_title} — {r.artist}</p>
                     <p className="font-mono text-xs text-[var(--text-dim)]">
-                      {new Date(r.created_at).toLocaleDateString()} ·{" "}
-                      {r.found_in_db ? "Found in DB" : "Not in DB"} · Source:{" "}
-                      {r.source}
+                      {new Date(r.created_at).toLocaleDateString()} · {r.found_in_db ? "Found in DB" : "Not in DB"} · Source: {r.source}
                     </p>
                   </div>
                   {!r.found_in_db && (
                     <button
-                      onClick={() => {
-                        setSongTitle(r.song_title);
-                        setSongArtist(r.artist);
-                        setTab("songs");
-                      }}
+                      onClick={() => { setSongTitle(r.song_title); setSongArtist(r.artist); setTab("songs"); }}
                       className="shrink-0 font-mono text-xs text-[var(--info)] hover:opacity-70"
                     >
                       + Add
@@ -481,43 +458,25 @@ export default function AdminPage() {
       {tab === "import" && (
         <div className="space-y-6 max-w-lg">
           <div>
-            <p className="font-display font-bold text-lg text-[var(--text)] mb-2">
-              Import CSV
-            </p>
+            <p className="font-display font-bold text-lg text-[var(--text)] mb-2">Import CSV</p>
             <p className="font-mono text-xs text-[var(--text-dim)] leading-relaxed mb-4">
-              Upload a CSV file to bulk import songs or rights holders. The
-              importer auto-detects the type from headers.
+              Upload a CSV file to bulk import songs or rights holders. The importer auto-detects the type from headers.
             </p>
-
-            <label
-              className={`${btnClass} inline-block cursor-pointer ${
-                uploading ? "opacity-40 pointer-events-none" : ""
-              }`}
-            >
+            <label className={`${btnClass} inline-block cursor-pointer ${uploading ? "opacity-40 pointer-events-none" : ""}`}>
               {uploading ? "Importing..." : "Choose CSV File"}
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleCSV}
-                className="hidden"
-              />
+              <input type="file" accept=".csv" onChange={handleCSV} className="hidden" />
             </label>
           </div>
-
           <div className="space-y-4">
             <div>
-              <p className="font-mono text-sm font-medium text-[var(--text)] mb-1">
-                Song CSV format
-              </p>
+              <p className="font-mono text-sm font-medium text-[var(--text)] mb-1">Song CSV format</p>
               <pre className="font-mono text-xs text-[var(--text-dim)] bg-[var(--surface)] p-3 rounded-lg overflow-x-auto">
 {`song_title,artist,master_owner,publisher,writer,isrc
 "It Was a Good Day","Ice Cube","Priority Records","WB Music","O'Shea Jackson",""`}
               </pre>
             </div>
             <div>
-              <p className="font-mono text-sm font-medium text-[var(--text)] mb-1">
-                Rights Holder CSV format
-              </p>
+              <p className="font-mono text-sm font-medium text-[var(--text)] mb-1">Rights Holder CSV format</p>
               <pre className="font-mono text-xs text-[var(--text-dim)] bg-[var(--surface)] p-3 rounded-lg overflow-x-auto">
 {`name,type,contact_email,contact_phone,website
 "Warner Chappell","publisher","licensing@warnerchappell.com","","warnerchappell.com"`}
