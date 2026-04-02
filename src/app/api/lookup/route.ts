@@ -3,6 +3,7 @@ import { queryInternalDB } from "@/lib/lookup/internal";
 import { inferOwnership } from "@/lib/claude";
 import { mergeResults } from "@/lib/lookup/merge";
 import { lookupDemoData } from "@/lib/demo-data";
+import { createServerClient } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   try {
@@ -88,6 +89,19 @@ export async function POST(request: Request) {
       newTimingEnd,
       distributorName,
     });
+
+    // Log search request for admin dashboard
+    try {
+      const server = createServerClient();
+      await server.from("search_requests").insert({
+        song_title: songTitle,
+        artist: originalArtist,
+        found_in_db: !!(internalResult?.master || internalResult?.publishing),
+        source: internalResult?.master ? "internal" : claudeResult ? "claude" : "none",
+      });
+    } catch {
+      // Don't block the response if logging fails
+    }
 
     return NextResponse.json(merged);
   } catch (e) {

@@ -22,6 +22,21 @@ export const metadata: Metadata = {
   title: "Clear the Wax — sample clearance, simplified",
   description:
     "Find who owns the music. Get the contact. Draft the letter. Clear the sample — in under 60 seconds.",
+  metadataBase: new URL("https://clearthewax.com"),
+  openGraph: {
+    title: "Clear the Wax — sample clearance, simplified",
+    description:
+      "Find who owns the music. Get the contact. Draft the letter. Clear the sample — in under 60 seconds.",
+    url: "https://clearthewax.com",
+    siteName: "Clear the Wax",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Clear the Wax — sample clearance, simplified",
+    description:
+      "Find who owns the music. Get the contact. Draft the letter. Clear the sample — in under 60 seconds.",
+  },
 };
 
 export default function RootLayout({
@@ -44,6 +59,14 @@ export default function RootLayout({
           <NavLinks />
         </nav>
         {children}
+        <footer className="w-full py-6 text-center">
+          <a
+            href="/admin"
+            className="font-mono text-[10px] text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors opacity-40 hover:opacity-70"
+          >
+            admin
+          </a>
+        </footer>
       </body>
     </html>
   );

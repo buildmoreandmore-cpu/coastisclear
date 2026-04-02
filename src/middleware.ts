@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedRoutes = ["/dashboard", "/search"];
+const protectedRoutes = ["/dashboard", "/search", "/admin"];
 const publicRoutes = ["/", "/about", "/login"];
 
 export async function middleware(request: NextRequest) {
@@ -54,5 +54,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/search/:path*"],
+  matcher: ["/dashboard/:path*", "/search/:path*", "/admin/:path*"],
 };
