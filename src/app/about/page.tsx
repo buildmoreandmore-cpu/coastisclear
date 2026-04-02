@@ -88,9 +88,14 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="pt-8 border-t border-[var(--border)]">
+        <div className="pt-8 border-t border-[var(--border)] space-y-2">
+          <p className="text-[var(--text-mid)] text-xs">
+            <a href="mailto:clearthewaxmusic@gmail.com" className="hover:text-[var(--text)] transition-colors">
+              clearthewaxmusic@gmail.com
+            </a>
+          </p>
           <p className="text-[var(--text-dim)] text-xs">
-            Clear the wax. Sample with confidence.
+            clearthewax.com — sample clearance, simplified.
           </p>
         </div>
       </div>
