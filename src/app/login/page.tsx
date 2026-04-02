@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { getAuthClient } from "@/lib/supabase";
 
 type Mode = "signin" | "signup" | "forgot" | "reset-sent";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/search";
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,9 +22,10 @@ export default function LoginPage() {
     const supabase = getAuthClient();
     if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.push("/search");
+      if (data.session) router.push(redirectTo);
     });
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const ADMIN_EMAILS = [
     "martinjdfrancis@gmail.com",
@@ -88,7 +92,7 @@ export default function LoginPage() {
       if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
         router.push("/admin");
       } else {
-        router.push("/search");
+        router.push(redirectTo);
       }
     }
   };
@@ -273,5 +277,13 @@ export default function LoginPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -73,20 +73,17 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialSong = searchParams.get("song") || "";
-  const [authChecked, setAuthChecked] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const requireAuth = async (onAuthed: () => void) => {
     const supabase = getAuthClient();
-    if (!supabase) { router.push("/login"); return; }
-    supabase.auth.getSession().then(({ data }) => {
-      if (cancelled) return;
-      if (!data.session) router.push("/login");
-      else setAuthChecked(true);
-    });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!supabase) { router.push("/login?redirect=/search"); return; }
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      router.push("/login?redirect=/search");
+    } else {
+      onAuthed();
+    }
+  };
 
   const [state, setState] = useState<SearchState>({
     step: 0,
@@ -474,10 +471,10 @@ function SearchPage() {
                   {(results?.master || results?.publishing) && (
                     <>
                       <button
-                        onClick={() => {
+                        onClick={() => requireAuth(() => {
                           setTypingDone(false);
                           update({ step: 5 });
-                        }}
+                        })}
                         className="w-full px-6 py-3 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 transition-colors"
                       >
                         Draft Clearance Letter
@@ -489,7 +486,7 @@ function SearchPage() {
                   )}
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
-                      onClick={addToPipeline}
+                      onClick={() => requireAuth(addToPipeline)}
                       className="flex-1 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg hover:bg-[var(--accent-soft)] transition-colors"
                     >
                       Add to Pipeline
@@ -758,10 +755,6 @@ function SearchPage() {
         return null;
     }
   };
-
-  if (!authChecked) {
-    return <div className="min-h-screen" />;
-  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
