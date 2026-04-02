@@ -23,6 +23,11 @@ export default function LoginPage() {
     });
   }, [router]);
 
+  const ADMIN_EMAILS = [
+    "martinjdfrancis@gmail.com",
+    "morian@aaemgmt.com",
+  ];
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -77,7 +82,14 @@ export default function LoginPage() {
     if (err) {
       setError(err.message);
     } else {
-      router.push("/search");
+      const supabase = getAuthClient();
+      const { data: userData } = await supabase!.auth.getUser();
+      const userEmail = userData.user?.email;
+      if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
+        router.push("/admin");
+      } else {
+        router.push("/search");
+      }
     }
   };
 
