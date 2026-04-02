@@ -76,13 +76,17 @@ function SearchPage() {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const supabase = getAuthClient();
     if (!supabase) { router.push("/login"); return; }
     supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
       if (!data.session) router.push("/login");
       else setAuthChecked(true);
     });
-  }, [router]);
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [state, setState] = useState<SearchState>({
     step: 0,

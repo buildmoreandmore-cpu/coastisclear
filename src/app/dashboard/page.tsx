@@ -22,13 +22,17 @@ export default function DashboardPage() {
   const [publishingLetter, setPublishingLetter] = useState<string | undefined>();
 
   useEffect(() => {
+    let cancelled = false;
     const supabase = getAuthClient();
     if (!supabase) { router.push("/login"); return; }
     supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
       if (!data.session) router.push("/login");
       else setAuthChecked(true);
     });
-  }, [router]);
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const generateLettersForItem = useCallback(async (item: PipelineItem) => {
     setLetterLoading(true);
