@@ -92,7 +92,18 @@ function SearchPage() {
     }
   };
 
+  const USER_PREFS_KEY = "clearthewax_user_prefs";
+
   const [state, setState] = useState<SearchState>(() => {
+    // Load saved user prefs (name, company, distributor, release context, intended use)
+    let userPrefs: Partial<SearchState> = {};
+    if (typeof window !== "undefined") {
+      try {
+        const prefs = localStorage.getItem(USER_PREFS_KEY);
+        if (prefs) userPrefs = JSON.parse(prefs);
+      } catch { /* ignore */ }
+    }
+
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -100,14 +111,14 @@ function SearchPage() {
         try {
           const parsed = JSON.parse(saved) as SearchState;
           // Restore to results page (step 4) so they see their results
-          return { ...parsed, step: 4, lookupStatus: "done" };
+          return { ...parsed, ...userPrefs, step: 4, lookupStatus: "done" };
         } catch { /* fall through */ }
       }
     }
     return {
       step: 0,
-      requestorName: "",
-      requestorCompany: "",
+      requestorName: userPrefs.requestorName || "",
+      requestorCompany: userPrefs.requestorCompany || "",
       newSongTitle: "",
       sampledSongTitle: initialSong,
       originalArtist: "",
@@ -118,9 +129,9 @@ function SearchPage() {
       newTimingEnd: "",
       sampleUseDescription: "",
       sampleUseTags: [],
-      intendedUse: "",
-      releaseContext: "",
-      distributorName: "",
+      intendedUse: userPrefs.intendedUse || "",
+      releaseContext: userPrefs.releaseContext || "",
+      distributorName: userPrefs.distributorName || "",
       lookupResults: null,
       lookupStatus: "idle",
     };
@@ -196,6 +207,17 @@ function SearchPage() {
   };
 
   const generateLetters = async () => {
+    // Save user prefs for future searches
+    try {
+      localStorage.setItem(USER_PREFS_KEY, JSON.stringify({
+        requestorName: state.requestorName,
+        requestorCompany: state.requestorCompany,
+        intendedUse: state.intendedUse,
+        releaseContext: state.releaseContext,
+        distributorName: state.distributorName,
+      }));
+    } catch { /* ignore */ }
+
     setLetterModalOpen(true);
     setLetterLoading(true);
     setMasterLetter(undefined);
@@ -515,8 +537,8 @@ function SearchPage() {
                       onClick={() => {
                         setState({
                           step: 0,
-                          requestorName: "",
-                          requestorCompany: "",
+                          requestorName: state.requestorName,
+                          requestorCompany: state.requestorCompany,
                           newSongTitle: "",
                           sampledSongTitle: "",
                           originalArtist: "",
@@ -527,9 +549,9 @@ function SearchPage() {
                           newTimingEnd: "",
                           sampleUseDescription: "",
                           sampleUseTags: [],
-                          intendedUse: "",
-                          releaseContext: "",
-                          distributorName: "",
+                          intendedUse: state.intendedUse,
+                          releaseContext: state.releaseContext,
+                          distributorName: state.distributorName,
                           lookupResults: null,
                           lookupStatus: "idle",
                         });
@@ -559,6 +581,7 @@ function SearchPage() {
             {typingDone && (
               <TextInput
                 ref={inputRef}
+                defaultValue={state.requestorName}
                 placeholder="e.g. Jordan Ellis"
                 onSubmit={(v) => handleTextSubmit("requestorName", v)}
               />
@@ -575,6 +598,7 @@ function SearchPage() {
               <div className="mt-6 space-y-3">
                 <TextInput
                   ref={inputRef}
+                  defaultValue={state.requestorCompany}
                   placeholder="e.g. Alien Music, Inc."
                   onSubmit={(v) => handleTextSubmit("requestorCompany", v)}
                 />

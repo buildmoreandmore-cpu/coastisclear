@@ -262,10 +262,10 @@ export default function AdminPage() {
     e.target.value = "";
   };
 
-  const tabs: { key: Tab; label: string }[] = [
+  const tabs: { key: Tab; label: string; badge?: number }[] = [
     { key: "songs", label: "Songs" },
     { key: "rights-holders", label: "Rights Holders" },
-    { key: "search-requests", label: "Search Requests" },
+    { key: "search-requests", label: "Search Requests", badge: requests.filter((r) => !r.found_in_db).length },
     { key: "import", label: "CSV Import" },
   ];
 
@@ -310,6 +310,11 @@ export default function AdminPage() {
             }`}
           >
             {t.label}
+            {!!t.badge && t.badge > 0 && (
+              <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full bg-[var(--danger)] text-white">
+                {t.badge}
+              </span>
+            )}
           </button>
         ))}
       </div>

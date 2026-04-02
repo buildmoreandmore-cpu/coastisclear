@@ -44,47 +44,51 @@ export async function queryInternalDB(
         s.artist.toLowerCase() === artist.toLowerCase()
     ) || songs[0];
 
-  const master: OwnershipResult | null = bestMatch.label
+  // Build master result — prefer rights_holders join, fall back to direct song fields
+  const masterHolder = bestMatch.label?.name || bestMatch.master_owner;
+  const master: OwnershipResult | null = masterHolder
     ? {
-        holder: bestMatch.label.name,
-        administrator: bestMatch.label.administrator,
+        holder: masterHolder,
+        administrator: bestMatch.label?.administrator,
         type: "master",
         confidence: bestMatch.confidence_score || 60,
         source: "internal",
-        contactName: undefined,
-        email: bestMatch.label.email,
-        phone: bestMatch.label.phone,
-        address: bestMatch.label.address,
-        department: bestMatch.label.department,
-        avgFee: bestMatch.label.avg_fee_master,
-        avgResponseWeeks: bestMatch.label.avg_response_weeks,
-        noSamplePolicy: bestMatch.label.no_sample_policy,
-        deceased: bestMatch.label.deceased,
-        estateContact: bestMatch.label.estate_contact,
-        lastVerified: bestMatch.label.contact_last_verified,
+        contactName: bestMatch.master_contact || undefined,
+        email: bestMatch.label?.email || bestMatch.master_email || undefined,
+        phone: bestMatch.label?.phone,
+        address: bestMatch.label?.address,
+        department: bestMatch.label?.department || bestMatch.master_contact || undefined,
+        avgFee: bestMatch.label?.avg_fee_master,
+        avgResponseWeeks: bestMatch.label?.avg_response_weeks,
+        noSamplePolicy: bestMatch.label?.no_sample_policy,
+        deceased: bestMatch.label?.deceased,
+        estateContact: bestMatch.label?.estate_contact,
+        lastVerified: bestMatch.label?.contact_last_verified,
       }
     : null;
 
-  const publishing: OwnershipResult | null = bestMatch.publisher
+  // Build publishing result — prefer rights_holders join, fall back to direct song fields
+  const pubHolder = bestMatch.publisher?.name || bestMatch.publisher_name;
+  const publishing: OwnershipResult | null = pubHolder
     ? {
-        holder: bestMatch.publisher.name,
-        administrator: bestMatch.publisher.administrator,
+        holder: pubHolder,
+        administrator: bestMatch.publisher?.administrator || bestMatch.publisher_admin || undefined,
         type: "publishing",
         confidence: bestMatch.confidence_score || 60,
         source: "internal",
-        email: bestMatch.publisher.email,
-        phone: bestMatch.publisher.phone,
-        address: bestMatch.publisher.address,
-        department: bestMatch.publisher.department,
+        email: bestMatch.publisher?.email || bestMatch.publisher_contact || undefined,
+        phone: bestMatch.publisher?.phone,
+        address: bestMatch.publisher?.address,
+        department: bestMatch.publisher?.department,
         writers: bestMatch.writers,
         pro: bestMatch.pro,
         proId: bestMatch.pro_id,
-        avgFee: bestMatch.publisher.avg_fee_publishing,
-        avgResponseWeeks: bestMatch.publisher.avg_response_weeks,
-        noSamplePolicy: bestMatch.publisher.no_sample_policy,
-        deceased: bestMatch.publisher.deceased,
-        estateContact: bestMatch.publisher.estate_contact,
-        lastVerified: bestMatch.publisher.contact_last_verified,
+        avgFee: bestMatch.publisher?.avg_fee_publishing,
+        avgResponseWeeks: bestMatch.publisher?.avg_response_weeks,
+        noSamplePolicy: bestMatch.publisher?.no_sample_policy,
+        deceased: bestMatch.publisher?.deceased,
+        estateContact: bestMatch.publisher?.estate_contact,
+        lastVerified: bestMatch.publisher?.contact_last_verified,
       }
     : null;
 
