@@ -10,7 +10,7 @@ export default function AboutPage() {
 
       <div className="space-y-8 font-mono text-sm text-[var(--text-mid)] leading-relaxed">
         <p>
-          Clear the Wax maintains a growing database of verified sample clearance
+          Clear the Wax maintains one of the largest databases of verified sample clearance
           contacts — master owners, publishers, administrators, and licensing
           departments — sourced directly from the labels and publishers themselves.
           Every contact is manually verified. No scraped data. No guesswork.
