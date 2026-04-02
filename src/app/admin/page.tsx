@@ -66,6 +66,8 @@ export default function AdminPage() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [editingHolderId, setEditingHolderId] = useState<string | null>(null);
   const [editHolder, setEditHolder] = useState({ name: "", type: "", contact_email: "", contact_phone: "", website: "" });
+  const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
+  const [editRequest, setEditRequest] = useState({ song_title: "", artist: "", source: "" });
 
   useEffect(() => {
     const supabase = getAuthClient();
@@ -489,20 +491,72 @@ export default function AdminPage() {
           ) : (
             <div className="space-y-2">
               {requests.map((r) => (
-                <div key={r.id} className="flex items-center justify-between gap-4 px-4 py-3 bg-[var(--surface)] rounded-lg">
-                  <div className="min-w-0">
-                    <p className="font-mono text-sm text-[var(--text)] truncate">{r.song_title} — {r.artist}</p>
-                    <p className="font-mono text-xs text-[var(--text-dim)]">
-                      {new Date(r.created_at).toLocaleDateString()} · {r.found_in_db ? "Found in DB" : "Not in DB"} · Source: {r.source}
-                    </p>
-                  </div>
-                  {!r.found_in_db && (
-                    <button
-                      onClick={() => { setSongTitle(r.song_title); setSongArtist(r.artist); setTab("songs"); }}
-                      className="shrink-0 font-mono text-xs text-[var(--info)] hover:opacity-70"
-                    >
-                      + Add
-                    </button>
+                <div key={r.id} className="bg-[var(--surface)] rounded-lg overflow-hidden">
+                  {editingRequestId === r.id ? (
+                    <div className="px-4 py-3 space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="font-mono text-xs text-[var(--text-dim)] block mb-1">Song Title</label>
+                          <input value={editRequest.song_title} onChange={(e) => setEditRequest({ ...editRequest, song_title: e.target.value })} className="w-full px-3 py-2 bg-[var(--bg)] border border-[var(--border)] rounded font-mono text-sm text-[var(--text)]" />
+                        </div>
+                        <div>
+                          <label className="font-mono text-xs text-[var(--text-dim)] block mb-1">Artist</label>
+                          <input value={editRequest.artist} onChange={(e) => setEditRequest({ ...editRequest, artist: e.target.value })} className="w-full px-3 py-2 bg-[var(--bg)] border border-[var(--border)] rounded font-mono text-sm text-[var(--text)]" />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async () => {
+                            await fetch("/api/admin/search-requests", {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ id: r.id, ...editRequest }),
+                            });
+                            setEditingRequestId(null);
+                            fetchRequests();
+                          }}
+                          className="px-3 py-1.5 bg-[var(--accent)] text-[var(--bg)] font-mono text-xs rounded hover:opacity-80"
+                        >
+                          Save
+                        </button>
+                        <button onClick={() => setEditingRequestId(null)} className="px-3 py-1.5 border border-[var(--border)] text-[var(--text-dim)] font-mono text-xs rounded hover:opacity-80">Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="font-mono text-sm text-[var(--text)] truncate">{r.song_title} — {r.artist}</p>
+                        <p className="font-mono text-xs text-[var(--text-dim)]">
+                          {new Date(r.created_at).toLocaleDateString()} · {r.found_in_db ? "Found in DB" : "Not in DB"} · Source: {r.source}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {!r.found_in_db && (
+                          <button
+                            onClick={() => { setSongTitle(r.song_title); setSongArtist(r.artist); setTab("songs"); }}
+                            className="font-mono text-xs text-[var(--info)] hover:opacity-70"
+                          >
+                            + Add
+                          </button>
+                        )}
+                        <button
+                          onClick={() => { setEditingRequestId(r.id); setEditRequest({ song_title: r.song_title, artist: r.artist, source: r.source }); }}
+                          className="font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text)]"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm(`Delete search request "${r.song_title}"?`)) return;
+                            await fetch(`/api/admin/search-requests?id=${r.id}`, { method: "DELETE" });
+                            fetchRequests();
+                          }}
+                          className="font-mono text-xs text-[var(--danger)] hover:opacity-70"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               ))}
