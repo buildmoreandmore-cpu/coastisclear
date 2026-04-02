@@ -64,6 +64,15 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
         </span>
       </div>
 
+      {/* AI-Inferred Badge */}
+      {data.source === "claude_inference" && (
+        <div className="mb-4 px-3 py-2 bg-[var(--warning)]/10 border border-[var(--warning)]/20 rounded-lg">
+          <p className="font-mono text-xs text-[var(--warning)]">
+            AI-Inferred — Not verified. Results are based on public knowledge and may not be accurate.
+          </p>
+        </div>
+      )}
+
       {/* Production Library Badge */}
       {data.isProductionLibrary && (
         <div className="mb-4 px-3 py-2 bg-[var(--info)]/10 border border-[var(--info)]/20 rounded-lg">

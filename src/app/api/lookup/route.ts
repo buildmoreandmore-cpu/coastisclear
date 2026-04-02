@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { queryInternalDB } from "@/lib/lookup/internal";
+import { inferOwnership } from "@/lib/claude";
 import { mergeResults } from "@/lib/lookup/merge";
 import { createServerClient } from "@/lib/supabase";
 
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
         song_title: songTitle,
         artist: originalArtist,
         found_in_db: !!(internalResult?.master || internalResult?.publishing),
-        source: internalResult?.master ? "internal" : "none",
+        source: (internalResult?.master || internalResult?.publishing) ? "internal" : "pending",
       });
     } catch {
       // Don't block the response if logging fails
@@ -58,7 +59,28 @@ export async function POST(request: Request) {
       return NextResponse.json(merged);
     }
 
-    // Not in our database — return clean "not found"
+    // Not in our database — try MiniMax AI inference as fallback
+    let aiResult = null;
+    try {
+      aiResult = await inferOwnership({ songTitle, artist: originalArtist });
+    } catch (e) {
+      console.error("MiniMax inference failed:", e);
+    }
+
+    if (aiResult) {
+      const merged = mergeResults({
+        internal: null,
+        claude: aiResult,
+        originalTimingStart,
+        originalTimingEnd,
+        newTimingStart,
+        newTimingEnd,
+        distributorName,
+      });
+      return NextResponse.json(merged);
+    }
+
+    // Neither DB nor AI found anything
     return NextResponse.json({
       master: null,
       publishing: null,
