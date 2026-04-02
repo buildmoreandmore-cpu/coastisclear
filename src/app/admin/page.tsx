@@ -387,7 +387,7 @@ export default function AdminPage() {
                               setEmailModal({ to: email, subject: `Sample Clearance Inquiry — "${s.song_title}" by ${s.artist}`, body: "" });
                             }} className="font-mono text-xs text-[var(--success)] hover:opacity-70">Email</button>
                           )}
-                          <button onClick={() => startEditSong(s)} className="font-mono text-xs text-[var(--info)] hover:opacity-70">Edit</button>
+                          <button onClick={() => startEditSong(s)} className="px-3 py-1.5 border border-[var(--accent)]/40 text-[var(--accent)] font-mono text-xs rounded hover:bg-[var(--accent-soft)] transition-all">Update</button>
                           <button onClick={() => deleteSong(s.id)} className="font-mono text-xs text-[var(--danger)] hover:opacity-70">Delete</button>
                         </div>
                       </div>
