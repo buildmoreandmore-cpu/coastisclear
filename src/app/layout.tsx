@@ -59,7 +59,13 @@ export default function RootLayout({
           <NavLinks />
         </nav>
         {children}
-        <footer className="w-full py-6 text-center">
+        <footer className="w-full py-6 flex items-center justify-center gap-4">
+          <a
+            href="/glossary"
+            className="font-mono text-[10px] text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors opacity-60 hover:opacity-90"
+          >
+            glossary
+          </a>
           <a
             href="/admin"
             className="font-mono text-[10px] text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors opacity-40 hover:opacity-70"

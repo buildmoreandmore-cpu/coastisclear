@@ -100,7 +100,10 @@ export default function AboutPage() {
               clearthewaxmusic@gmail.com
             </a>
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
+            <a href="/glossary" className="text-[var(--text-dim)] text-xs hover:text-[var(--text-mid)] transition-colors">
+              Glossary
+            </a>
             <a href="/terms" className="text-[var(--text-dim)] text-xs hover:text-[var(--text-mid)] transition-colors">
               Terms of Service
             </a>
