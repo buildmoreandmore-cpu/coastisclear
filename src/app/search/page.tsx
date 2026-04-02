@@ -125,10 +125,10 @@ function SearchPage() {
   const prevStep = () => {
     if (state.step <= 0) return;
     setTypingDone(false);
-    const prev = state.step === 8.5 ? 8 : Math.floor(state.step) - 1;
-    // Don't go back past results (step 3)
-    if (prev < 4 && state.step >= 4) {
-      update({ step: 3 });
+    const prev = state.step === 9.5 ? 9 : Math.floor(state.step) - 1;
+    // Don't go back past results (step 4)
+    if (prev < 5 && state.step >= 5) {
+      update({ step: 4 });
       return;
     }
     update({ step: prev });
@@ -143,9 +143,9 @@ function SearchPage() {
     if (typingDone && textareaRef.current) textareaRef.current.focus();
   }, [typingDone]);
 
-  // Auto-fire lookup when we reach scanning step (step 2)
+  // Auto-fire lookup when we reach scanning step (step 3)
   useEffect(() => {
-    if (state.step === 2 && state.lookupStatus === "idle") {
+    if (state.step === 3 && state.lookupStatus === "idle") {
       runLookup();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -325,8 +325,8 @@ function SearchPage() {
   const needsDistributor = state.releaseContext === "distributor" || state.releaseContext === "independent_label";
 
   // Determine which phase we're in for progress display
-  const inLetterMode = state.step >= 4;
-  const totalDots = inLetterMode ? 12 : 3;
+  const inLetterMode = state.step >= 5;
+  const totalDots = inLetterMode ? 13 : 4;
 
   const renderStep = () => {
     switch (state.step) {
@@ -363,14 +363,37 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 2: Scanning
+      // Step 2: Reference link (optional)
       case 2:
+        return (
+          <StepContainer key={2}>
+            <TypedPrompt text="Drop a link to the original track." onComplete={onTypingComplete} />
+            {typingDone && (
+              <div className="mt-6 space-y-3">
+                <TextInput
+                  ref={inputRef}
+                  placeholder="Spotify, YouTube, or Apple Music link"
+                  onSubmit={(v) => handleTextSubmit("referenceUrl", v)}
+                />
+                <button
+                  onClick={nextStep}
+                  className="font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors"
+                >
+                  Skip — search without a link
+                </button>
+              </div>
+            )}
+          </StepContainer>
+        );
+
+      // Step 3: Scanning
+      case 3:
         if (state.lookupStatus === "done") {
-          update({ step: 3 });
+          update({ step: 4 });
           return null;
         }
         return (
-          <StepContainer key={2}>
+          <StepContainer key={3}>
             <ScanningState
               phases={[
                 "Searching verified rights database...",
@@ -379,15 +402,15 @@ function SearchPage() {
               ]}
               onComplete={() => {
                 if (state.lookupStatus === "done") {
-                  update({ step: 3 });
+                  update({ step: 4 });
                 }
               }}
             />
           </StepContainer>
         );
 
-      // Step 3: Results
-      case 3: {
+      // Step 4: Results
+      case 4: {
         const results = state.lookupResults;
         return (
           <StepContainer key={3}>
@@ -449,7 +472,7 @@ function SearchPage() {
                       <button
                         onClick={() => {
                           setTypingDone(false);
-                          update({ step: 4 });
+                          update({ step: 5 });
                         }}
                         className="w-full px-6 py-3 bg-[var(--accent)] text-[var(--bg)] font-mono text-sm rounded-lg hover:bg-[var(--accent)]/90 transition-colors"
                       >
@@ -507,10 +530,10 @@ function SearchPage() {
 
       // ─── PHASE 2: LETTER DETAILS (optional, only if they clicked "Draft Letter") ───
 
-      // Step 4: Your name
-      case 4:
+      // Step 5: Your name
+      case 5:
         return (
-          <StepContainer key={4}>
+          <StepContainer key={5}>
             <TypedPrompt text="What's your name?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -522,10 +545,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 5: Company
-      case 5:
+      // Step 6: Company
+      case 6:
         return (
-          <StepContainer key={5}>
+          <StepContainer key={6}>
             <TypedPrompt text="What label or company are you with?" onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-3">
@@ -545,10 +568,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 6: New song title
-      case 6:
+      // Step 7: New song title
+      case 7:
         return (
-          <StepContainer key={6}>
+          <StepContainer key={7}>
             <TypedPrompt text="What's the name of your new song?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -560,10 +583,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 7: Intended use
-      case 7:
+      // Step 8: Intended use
+      case 8:
         return (
-          <StepContainer key={7}>
+          <StepContainer key={8}>
             <TypedPrompt text="What's this for?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -577,10 +600,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 8: Release context
-      case 8:
+      // Step 9: Release context
+      case 9:
         return (
-          <StepContainer key={8}>
+          <StepContainer key={9}>
             <TypedPrompt text="Who's releasing this?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -589,7 +612,7 @@ function SearchPage() {
                   update({ releaseContext: v });
                   if (v === "distributor" || v === "independent_label") {
                     setTypingDone(false);
-                    update({ step: 8.5 } as any);
+                    update({ step: 9.5 } as any);
                   } else {
                     nextStep();
                   }
@@ -599,10 +622,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 9: Original timing
-      case 9:
+      // Step 10: Original timing
+      case 10:
         return (
-          <StepContainer key={9}>
+          <StepContainer key={10}>
             <TypedPrompt
               text="Where in the original track does your sample start and end?"
               onComplete={onTypingComplete}
@@ -619,10 +642,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 10: New timing
-      case 10:
+      // Step 11: New timing
+      case 11:
         return (
-          <StepContainer key={10}>
+          <StepContainer key={11}>
             <TypedPrompt
               text="Where does this sample appear in your new track?"
               onComplete={onTypingComplete}
@@ -639,10 +662,10 @@ function SearchPage() {
           </StepContainer>
         );
 
-      // Step 11: Sample use description + tags → then generate letter
-      case 11:
+      // Step 12: Sample use description + tags → then generate letter
+      case 12:
         return (
-          <StepContainer key={11}>
+          <StepContainer key={12}>
             <TypedPrompt text="Describe how you're using the sample." onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-4">
@@ -690,9 +713,9 @@ function SearchPage() {
 
       default:
         // Distributor sub-step
-        if (state.step === 8.5) {
+        if (state.step === 9.5) {
           return (
-            <StepContainer key="8.5">
+            <StepContainer key="9.5">
               <TypedPrompt text="Which one?" onComplete={onTypingComplete} />
               {typingDone && (
                 <TextInput
@@ -701,7 +724,7 @@ function SearchPage() {
                   onSubmit={(v) => {
                     update({ distributorName: v });
                     setTypingDone(false);
-                    update({ step: 9 });
+                    update({ step: 10 });
                   }}
                 />
               )}
@@ -718,7 +741,7 @@ function SearchPage() {
               </p>
               <button
                 onClick={() => {
-                  update({ lookupStatus: "idle", step: 2 });
+                  update({ lookupStatus: "idle", step: 3 });
                 }}
                 className="mt-4 px-6 py-3 border border-[var(--border-active)] text-[var(--text)] font-mono text-sm rounded-lg"
               >
@@ -759,7 +782,7 @@ function SearchPage() {
         </AnimatePresence>
 
         {/* Back button */}
-        {state.step > 0 && state.step !== 3 && state.step < 12 && (
+        {state.step > 0 && state.step !== 3 && state.step !== 4 && state.step < 13 && (
           <button
             onClick={prevStep}
             className="mt-8 font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors"
