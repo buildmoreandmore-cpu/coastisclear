@@ -468,7 +468,31 @@ function SearchPage() {
                       Add to Pipeline
                     </button>
                     <button
-                      onClick={() => router.push("/search")}
+                      onClick={() => {
+                        setState({
+                          step: 0,
+                          requestorName: "",
+                          requestorCompany: "",
+                          newSongTitle: "",
+                          sampledSongTitle: "",
+                          originalArtist: "",
+                          referenceUrl: "",
+                          originalTimingStart: "",
+                          originalTimingEnd: "",
+                          newTimingStart: "",
+                          newTimingEnd: "",
+                          sampleUseDescription: "",
+                          sampleUseTags: [],
+                          intendedUse: "",
+                          releaseContext: "",
+                          distributorName: "",
+                          lookupResults: null,
+                          lookupStatus: "idle",
+                        });
+                        setTypingDone(false);
+                        setMasterLetter(undefined);
+                        setPublishingLetter(undefined);
+                      }}
                       className="flex-1 px-6 py-3 border border-[var(--border)] text-[var(--text-mid)] font-mono text-sm rounded-lg hover:border-[var(--border-active)] hover:text-[var(--accent)] transition-colors"
                     >
                       Search Another
