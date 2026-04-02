@@ -2,12 +2,12 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen px-6 py-24 max-w-2xl mx-auto">
       <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-[var(--text)] mb-12 tracking-tight">
-        About Clear Wax
+        About Clear the Wax
       </h1>
 
       <div className="space-y-8 font-mono text-sm text-[var(--text-mid)] leading-relaxed">
         <p>
-          Clear Wax is a sample clearance tool built for music producers, artists,
+          Clear the Wax is a sample clearance tool built for music producers, artists,
           and entertainment attorneys. We help you identify who owns the music,
           get the right contact, and draft the clearance letter — all in one flow.
         </p>
@@ -81,7 +81,7 @@ export default function AboutPage() {
             Built from real deals
           </h2>
           <p>
-            Clear Wax is informed by actual clearance deal threads — real quotes,
+            Clear the Wax is informed by actual clearance deal threads — real quotes,
             real timelines, real contact workflows. The nine-step pipeline tracker
             mirrors how professional clearance houses track their deals internally.
             We built the tool we wished existed when we were clearing samples ourselves.

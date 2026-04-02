@@ -18,7 +18,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clear Wax — sample clearance, simplified",
+  title: "Clear the Wax — sample clearance, simplified",
   description:
     "Find who owns the music. Get the contact. Draft the letter. Clear the sample — in under 60 seconds.",
 };
@@ -38,7 +38,7 @@ export default function RootLayout({
             href="/"
             className="liquid-glass font-display font-extrabold text-xl tracking-tight hover:opacity-80 transition-opacity select-none"
           >
-            Clear Wax
+            Clear the Wax
           </Link>
           <div className="flex items-center gap-6">
             <Link

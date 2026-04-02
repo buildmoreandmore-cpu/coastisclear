@@ -75,7 +75,7 @@ export default function LandingPage() {
 
       {/* Tagline */}
       <p className="absolute bottom-8 font-mono text-xs text-[var(--text-dim)] tracking-wide z-10">
-        Clear the wax. Sample with confidence.
+        clearthewax.com — sample clearance, simplified.
       </p>
     </div>
   );

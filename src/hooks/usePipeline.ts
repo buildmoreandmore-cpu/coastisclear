@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { PipelineItem, ActivityLogEntry } from "@/types";
 
-const STORAGE_KEY = "clearwax_pipeline";
+const STORAGE_KEY = "clearthewax_pipeline";
 
 export function usePipeline() {
   const [items, setItems] = useState<PipelineItem[]>([]);

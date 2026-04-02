@@ -276,7 +276,7 @@ function SearchPage() {
       activityLog: [
         {
           action: "Ownership identified",
-          performedBy: "Clear Wax",
+          performedBy: "Clear the Wax",
           performedAt: new Date().toISOString(),
         },
         {
@@ -290,9 +290,9 @@ function SearchPage() {
     };
 
     try {
-      const existing = JSON.parse(localStorage.getItem("clearwax_pipeline") || "[]");
+      const existing = JSON.parse(localStorage.getItem("clearthewax_pipeline") || "[]");
       existing.push(item);
-      localStorage.setItem("clearwax_pipeline", JSON.stringify(existing));
+      localStorage.setItem("clearthewax_pipeline", JSON.stringify(existing));
       setToast({ visible: true, message: "Saved to your pipeline" });
     } catch {
       setToast({ visible: true, message: "Could not save — storage may be full" });
