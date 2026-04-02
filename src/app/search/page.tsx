@@ -459,12 +459,12 @@ function SearchPage() {
 
                 {/* Publishing Card */}
                 {results?.publishing && (
-                  <OwnershipCard data={results.publishing} delay={0} />
+                  <OwnershipCard data={results.publishing} delay={0} songTitle={state.sampledSongTitle} artist={state.originalArtist} />
                 )}
 
                 {/* Master Card */}
                 {results?.master && (
-                  <OwnershipCard data={results.master} delay={200} />
+                  <OwnershipCard data={results.master} delay={200} songTitle={state.sampledSongTitle} artist={state.originalArtist} />
                 )}
 
                 {/* No results */}

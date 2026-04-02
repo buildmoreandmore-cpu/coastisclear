@@ -1,16 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import type { OwnershipResult, Writer } from "@/types";
 
 interface OwnershipCardProps {
   data: OwnershipResult;
   delay?: number;
+  songTitle?: string;
+  artist?: string;
+  onRequestVerification?: () => void;
 }
 
-export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
+export default function OwnershipCard({
+  data,
+  delay = 0,
+  songTitle,
+  artist,
+  onRequestVerification,
+}: OwnershipCardProps) {
   const [copied, setCopied] = useState(false);
+  const [requested, setRequested] = useState(false);
 
   const copyEmail = async () => {
     if (!data.email) return;
@@ -19,21 +28,45 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const confidenceColor =
-    data.confidence >= 80
+  const isInferred = data.source === "claude_inference";
+  const isBlocked = data.noSamplePolicy;
+
+  const confidenceColor = isInferred
+    ? "var(--warning)"
+    : data.confidence >= 80
       ? "var(--success)"
       : data.confidence >= 40
         ? "var(--warning)"
         : "var(--danger)";
 
-  const confidenceLabel =
-    data.confidence >= 80
+  const confidenceLabel = isInferred
+    ? "AI-Inferred"
+    : data.confidence >= 80
       ? "Found"
       : data.confidence >= 40
         ? "Partial Match"
         : "Not Verified";
 
-  const isBlocked = data.noSamplePolicy;
+  const handleRequestVerification = async () => {
+    if (requested) return;
+    try {
+      await fetch("/api/admin/search-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          song_title: songTitle || "Unknown",
+          artist: artist || "Unknown",
+          found_in_db: false,
+          source: "verification_request",
+          notes: `User requested verification of AI-inferred ${data.type} rights. Holder: ${data.holder}`,
+        }),
+      });
+    } catch {
+      // Don't block UI if this fails
+    }
+    setRequested(true);
+    onRequestVerification?.();
+  };
 
   return (
     <div
@@ -65,10 +98,10 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
       </div>
 
       {/* AI-Inferred Badge */}
-      {data.source === "claude_inference" && (
+      {isInferred && (
         <div className="mb-4 px-3 py-2 bg-[var(--warning)]/10 border border-[var(--warning)]/20 rounded-lg">
           <p className="font-mono text-xs text-[var(--warning)]">
-            AI-Inferred — Not verified. Results are based on public knowledge and may not be accurate.
+            AI-Inferred — Not verified. Based on public knowledge and may not be accurate.
           </p>
         </div>
       )}
@@ -91,8 +124,8 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
         </div>
       )}
 
-      {/* Low confidence warning */}
-      {data.confidence < 60 && !isBlocked && (
+      {/* Low confidence warning — only for DB results, not AI-inferred */}
+      {!isInferred && data.confidence < 60 && !isBlocked && (
         <div className="mb-4 px-3 py-2 bg-[var(--warning)]/10 border border-[var(--warning)]/20 rounded-lg">
           <p className="font-mono text-xs text-[var(--warning)]">
             Contact Unverified — Multiple sources searched
@@ -189,9 +222,25 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
             <span className="text-[var(--text)]">{data.department}</span>
           </Row>
         )}
-
-        {/* Fee info removed — available in admin dashboard only */}
       </div>
+
+      {/* Request Verification CTA for AI-inferred results */}
+      {isInferred && (
+        <div className="mt-5 pt-4 border-t border-[var(--border)]">
+          {requested ? (
+            <p className="font-mono text-xs text-[var(--success)] text-center">
+              Verification requested — we&apos;ll research this and update our database.
+            </p>
+          ) : (
+            <button
+              onClick={handleRequestVerification}
+              className="w-full py-2.5 border border-[var(--border-active)] text-[var(--text)] font-mono text-xs rounded-lg hover:bg-[var(--accent-soft)] transition-colors"
+            >
+              Request Verification
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Footer */}
       <div className="mt-5 pt-4 border-t border-[var(--border)] flex items-center justify-between">

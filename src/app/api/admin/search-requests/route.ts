@@ -16,6 +16,19 @@ export async function GET() {
   }
 }
 
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const supabase = createServerClient();
+    const { error } = await supabase.from("search_requests").insert(body);
+    if (error) throw error;
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error("Insert search request error:", e);
+    return NextResponse.json({ error: "Insert failed" }, { status: 500 });
+  }
+}
+
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
