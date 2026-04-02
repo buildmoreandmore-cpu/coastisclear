@@ -1,69 +1,74 @@
 export default function AboutPage() {
   return (
     <div className="min-h-screen px-6 py-24 max-w-2xl mx-auto">
-      <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-[var(--text)] mb-12 tracking-tight">
-        About Clear the Wax
+      <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-[var(--text)] mb-4 tracking-tight">
+        The fastest way to clear a sample.
       </h1>
+      <p className="font-mono text-sm text-[var(--text-mid)] mb-12">
+        Verified contacts. Real ownership data. No middlemen.
+      </p>
 
       <div className="space-y-8 font-mono text-sm text-[var(--text-mid)] leading-relaxed">
         <p>
-          Clear the Wax is a sample clearance tool built for music producers, artists,
-          and entertainment attorneys. We help you identify who owns the music,
-          get the right contact, and draft the clearance letter — all in one flow.
+          Clear the Wax maintains a growing database of verified sample clearance
+          contacts — master owners, publishers, administrators, and licensing
+          departments — sourced directly from the labels and publishers themselves.
+          Every contact is manually verified. No scraped data. No guesswork.
         </p>
 
         <div>
           <h2 className="font-display font-bold text-lg text-[var(--text)] mb-3">
-            The problem
+            Built for the industry
           </h2>
           <p>
-            Sample clearance is one of the most opaque processes in the music industry.
-            Finding out who controls the master recording and publishing rights to a song
-            can take weeks of emails, phone calls, and dead ends. Most artists either
-            skip clearance entirely — risking lawsuits — or pay thousands to
-            intermediaries who charge for information that should be accessible.
+            Whether you&apos;re an artist clearing your first sample, management
+            coordinating a release, a label handling catalog licensing, or an
+            entertainment attorney drafting clearance requests — Clear the Wax
+            gives you the ownership data and contacts you need in seconds,
+            not weeks.
           </p>
         </div>
 
         <div>
           <h2 className="font-display font-bold text-lg text-[var(--text)] mb-3">
-            How we work
-          </h2>
-          <p>
-            Our database is built manually. We contact publishers, labels, and rights
-            administrators directly to verify ownership data and licensing contacts.
-            No scraped data. No guesswork. When our internal database doesn&apos;t have
-            a match, we use AI inference to point you in the right direction — clearly
-            marked with a confidence score so you know what&apos;s verified and what&apos;s not.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="font-display font-bold text-lg text-[var(--text)] mb-3">
-            What we do
+            What you get
           </h2>
           <ul className="space-y-2">
             <li className="flex gap-3">
               <span className="text-[var(--text-dim)] shrink-0">01</span>
-              <span>Identify master and publishing rights holders</span>
+              <span>Master and publishing rights holder identification — verified against label and publisher records</span>
             </li>
             <li className="flex gap-3">
               <span className="text-[var(--text-dim)] shrink-0">02</span>
-              <span>Surface verified licensing contacts with departments and emails</span>
+              <span>Direct licensing contacts — departments, emails, and phone numbers for the people who handle clearances</span>
             </li>
             <li className="flex gap-3">
               <span className="text-[var(--text-dim)] shrink-0">03</span>
-              <span>Generate professional clearance request letters — one for each side</span>
+              <span>Professional clearance request letters — one for master, one for publishing, ready to send</span>
             </li>
             <li className="flex gap-3">
               <span className="text-[var(--text-dim)] shrink-0">04</span>
-              <span>Track your clearance pipeline with a nine-step workflow per side</span>
+              <span>Pipeline tracking — a nine-step workflow that mirrors how clearance houses manage deals internally</span>
             </li>
             <li className="flex gap-3">
               <span className="text-[var(--text-dim)] shrink-0">05</span>
-              <span>Flag alternative paths — interpolation, flat buyout, related entities</span>
+              <span>Alternative paths flagged — interpolation options, flat buyout eligibility, related entities</span>
             </li>
           </ul>
+        </div>
+
+        <div>
+          <h2 className="font-display font-bold text-lg text-[var(--text)] mb-3">
+            How it works
+          </h2>
+          <p>
+            Enter the song you&apos;re sampling. We check our internal database first.
+            If we have verified ownership data, you get it instantly — along with
+            the licensing contact. If the song isn&apos;t in our database yet, we use
+            AI inference to identify the most likely rights holders, clearly marked
+            with a confidence score so you know exactly what&apos;s verified and what
+            needs confirmation.
+          </p>
         </div>
 
         <div>
@@ -71,8 +76,9 @@ export default function AboutPage() {
             What we don&apos;t do
           </h2>
           <p>
-            We don&apos;t negotiate on your behalf. We don&apos;t provide legal advice.
-            We find who owns it and how to reach them. You handle the deal.
+            We don&apos;t negotiate. We don&apos;t provide legal advice. We don&apos;t
+            charge you to find publicly accessible information. We give you
+            the data and the contact. You handle the deal.
           </p>
         </div>
 
@@ -81,10 +87,10 @@ export default function AboutPage() {
             Built from real deals
           </h2>
           <p>
-            Clear the Wax is informed by actual clearance deal threads — real quotes,
-            real timelines, real contact workflows. The nine-step pipeline tracker
-            mirrors how professional clearance houses track their deals internally.
-            We built the tool we wished existed when we were clearing samples ourselves.
+            Every feature in Clear the Wax comes from real clearance workflows —
+            real deal threads, real timelines, real contacts. The nine-step pipeline
+            tracker mirrors how professional clearance houses manage their deals.
+            We built the tool we needed when we were clearing samples ourselves.
           </p>
         </div>
 
@@ -94,6 +100,14 @@ export default function AboutPage() {
               clearthewaxmusic@gmail.com
             </a>
           </p>
+          <div className="flex gap-4">
+            <a href="/terms" className="text-[var(--text-dim)] text-xs hover:text-[var(--text-mid)] transition-colors">
+              Terms of Service
+            </a>
+            <a href="/privacy" className="text-[var(--text-dim)] text-xs hover:text-[var(--text-mid)] transition-colors">
+              Privacy Policy
+            </a>
+          </div>
           <p className="text-[var(--text-dim)] text-xs">
             clearthewax.com — sample clearance, simplified.
           </p>

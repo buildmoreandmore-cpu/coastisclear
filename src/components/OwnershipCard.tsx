@@ -181,21 +181,7 @@ export default function OwnershipCard({ data, delay = 0 }: OwnershipCardProps) {
           </Row>
         )}
 
-        {/* Fee info */}
-        {data.avgFee && (
-          <>
-            <div className="border-t border-[var(--border)] my-2" />
-            <Row label="Avg. Fee">
-              <span className="text-[var(--text)]">{data.avgFee}</span>
-            </Row>
-          </>
-        )}
-
-        {data.avgResponseWeeks && (
-          <Row label="Response">
-            <span className="text-[var(--text)]">{data.avgResponseWeeks}</span>
-          </Row>
-        )}
+        {/* Fee info removed — available in admin dashboard only */}
       </div>
 
       {/* Footer */}

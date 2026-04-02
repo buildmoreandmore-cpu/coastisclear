@@ -16,10 +16,16 @@ interface Song {
   song_title: string;
   artist: string;
   master_owner?: string;
+  master_contact?: string;
+  master_email?: string;
+  publisher_name?: string;
+  publisher_admin?: string;
+  publisher_contact?: string;
   publisher?: { name: string } | null;
   label?: { name: string } | null;
   writer?: string;
   isrc?: string;
+  notes?: string;
   created_at: string;
 }
 
@@ -55,7 +61,9 @@ export default function AdminPage() {
 
   // Edit states
   const [editingSongId, setEditingSongId] = useState<string | null>(null);
-  const [editSong, setEditSong] = useState({ song_title: "", artist: "", master_owner: "", writer: "", isrc: "" });
+  const [editSong, setEditSong] = useState({ song_title: "", artist: "", master_owner: "", master_contact: "", master_email: "", publisher_name: "", publisher_admin: "", writer: "", isrc: "", notes: "" });
+  const [emailModal, setEmailModal] = useState<{ to: string; subject: string; body: string } | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [editingHolderId, setEditingHolderId] = useState<string | null>(null);
   const [editHolder, setEditHolder] = useState({ name: "", type: "", contact_email: "", contact_phone: "", website: "" });
 
@@ -74,6 +82,10 @@ export default function AdminPage() {
   const [songTitle, setSongTitle] = useState("");
   const [songArtist, setSongArtist] = useState("");
   const [songMaster, setSongMaster] = useState("");
+  const [songMasterContact, setSongMasterContact] = useState("");
+  const [songMasterEmail, setSongMasterEmail] = useState("");
+  const [songPublisher, setSongPublisher] = useState("");
+  const [songPublisherAdmin, setSongPublisherAdmin] = useState("");
   const [songWriter, setSongWriter] = useState("");
   const [songIsrc, setSongIsrc] = useState("");
 
@@ -120,12 +132,16 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         song_title: songTitle, artist: songArtist,
-        master_owner: songMaster || null, writer: songWriter || null, isrc: songIsrc || null,
+        master_owner: songMaster || null, master_contact: songMasterContact || null,
+        master_email: songMasterEmail || null, publisher_name: songPublisher || null,
+        publisher_admin: songPublisherAdmin || null, writer: songWriter || null, isrc: songIsrc || null,
       }),
     });
     if (res.ok) {
       flash("Song added");
-      setSongTitle(""); setSongArtist(""); setSongMaster(""); setSongWriter(""); setSongIsrc("");
+      setSongTitle(""); setSongArtist(""); setSongMaster(""); setSongMasterContact("");
+      setSongMasterEmail(""); setSongPublisher(""); setSongPublisherAdmin("");
+      setSongWriter(""); setSongIsrc("");
       fetchSongs();
     } else { const d = await res.json(); flash(d.error || "Failed"); }
     setLoading(false);
@@ -135,7 +151,10 @@ export default function AdminPage() {
     setEditingSongId(s.id);
     setEditSong({
       song_title: s.song_title, artist: s.artist,
-      master_owner: s.master_owner || "", writer: s.writer || "", isrc: s.isrc || "",
+      master_owner: s.master_owner || "", master_contact: s.master_contact || "",
+      master_email: s.master_email || "", publisher_name: s.publisher_name || "",
+      publisher_admin: s.publisher_admin || "", writer: s.writer || "",
+      isrc: s.isrc || "", notes: s.notes || "",
     });
   };
 
@@ -208,6 +227,19 @@ export default function AdminPage() {
       body: JSON.stringify({ id }),
     });
     if (res.ok) { flash("Rights holder deleted"); fetchHolders(); }
+  };
+
+  const sendEmail = async () => {
+    if (!emailModal) return;
+    setSendingEmail(true);
+    const res = await fetch("/api/admin/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(emailModal),
+    });
+    if (res.ok) { flash("Email sent"); setEmailModal(null); }
+    else { const d = await res.json(); flash(d.error || "Failed to send"); }
+    setSendingEmail(false);
   };
 
   const handleCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -285,7 +317,11 @@ export default function AdminPage() {
             <p className="font-display font-bold text-lg text-[var(--text)]">Add Song</p>
             <input className={inputClass} placeholder="Song title *" value={songTitle} onChange={(e) => setSongTitle(e.target.value)} />
             <input className={inputClass} placeholder="Artist *" value={songArtist} onChange={(e) => setSongArtist(e.target.value)} />
-            <input className={inputClass} placeholder="Master owner" value={songMaster} onChange={(e) => setSongMaster(e.target.value)} />
+            <input className={inputClass} placeholder="Master owner (label)" value={songMaster} onChange={(e) => setSongMaster(e.target.value)} />
+            <input className={inputClass} placeholder="Master contact dept" value={songMasterContact} onChange={(e) => setSongMasterContact(e.target.value)} />
+            <input className={inputClass} placeholder="Master phone/email" value={songMasterEmail} onChange={(e) => setSongMasterEmail(e.target.value)} />
+            <input className={inputClass} placeholder="Publisher name" value={songPublisher} onChange={(e) => setSongPublisher(e.target.value)} />
+            <input className={inputClass} placeholder="Publisher admin" value={songPublisherAdmin} onChange={(e) => setSongPublisherAdmin(e.target.value)} />
             <input className={inputClass} placeholder="Writer(s)" value={songWriter} onChange={(e) => setSongWriter(e.target.value)} />
             <input className={inputClass} placeholder="ISRC" value={songIsrc} onChange={(e) => setSongIsrc(e.target.value)} />
             <button type="submit" disabled={loading} className={btnClass}>
@@ -308,29 +344,47 @@ export default function AdminPage() {
                         <input className={editInputClass} placeholder="Song title" value={editSong.song_title} onChange={(e) => setEditSong({ ...editSong, song_title: e.target.value })} />
                         <input className={editInputClass} placeholder="Artist" value={editSong.artist} onChange={(e) => setEditSong({ ...editSong, artist: e.target.value })} />
                         <input className={editInputClass} placeholder="Master owner" value={editSong.master_owner} onChange={(e) => setEditSong({ ...editSong, master_owner: e.target.value })} />
+                        <input className={editInputClass} placeholder="Master contact dept" value={editSong.master_contact} onChange={(e) => setEditSong({ ...editSong, master_contact: e.target.value })} />
+                        <input className={editInputClass} placeholder="Master phone/email" value={editSong.master_email} onChange={(e) => setEditSong({ ...editSong, master_email: e.target.value })} />
+                        <input className={editInputClass} placeholder="Publisher name" value={editSong.publisher_name} onChange={(e) => setEditSong({ ...editSong, publisher_name: e.target.value })} />
+                        <input className={editInputClass} placeholder="Publisher admin" value={editSong.publisher_admin} onChange={(e) => setEditSong({ ...editSong, publisher_admin: e.target.value })} />
                         <input className={editInputClass} placeholder="Writer(s)" value={editSong.writer} onChange={(e) => setEditSong({ ...editSong, writer: e.target.value })} />
                         <input className={editInputClass} placeholder="ISRC" value={editSong.isrc} onChange={(e) => setEditSong({ ...editSong, isrc: e.target.value })} />
+                        <textarea className={`${editInputClass} resize-none`} rows={2} placeholder="Notes" value={editSong.notes} onChange={(e) => setEditSong({ ...editSong, notes: e.target.value })} />
                         <div className="flex gap-3 pt-1">
                           <button onClick={saveEditSong} className="font-mono text-xs text-[var(--success)] hover:opacity-70">Save</button>
                           <button onClick={() => setEditingSongId(null)} className="font-mono text-xs text-[var(--text-dim)] hover:opacity-70">Cancel</button>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                         <div className="min-w-0">
-                          <p className="font-mono text-sm text-[var(--text)] truncate">
+                          <p className="font-mono text-sm text-[var(--text)]">
                             {s.song_title} — {s.artist}
                           </p>
-                          <p className="font-mono text-xs text-[var(--text-dim)]">
+                          <p className="font-mono text-xs text-[var(--text-dim)] mt-0.5">
                             {[
                               s.master_owner && `Master: ${s.master_owner}`,
-                              s.publisher?.name && `Pub: ${s.publisher.name}`,
-                              s.label?.name && `Label: ${s.label.name}`,
+                              s.publisher_name && `Pub: ${s.publisher_name}`,
                               s.writer && `Writer: ${s.writer}`,
                             ].filter(Boolean).join(" · ") || "No ownership info"}
                           </p>
+                          {(s.master_email || s.master_contact) && (
+                            <p className="font-mono text-xs text-[var(--info)] mt-0.5">
+                              {[s.master_contact, s.master_email].filter(Boolean).join(" · ")}
+                            </p>
+                          )}
+                          {s.notes && (
+                            <p className="font-mono text-xs text-[var(--text-dim)] mt-0.5 italic">{s.notes.slice(0, 120)}{s.notes.length > 120 ? "..." : ""}</p>
+                          )}
                         </div>
                         <div className="flex gap-3 shrink-0">
+                          {s.master_email && s.master_email.includes("@") && (
+                            <button onClick={() => {
+                              const email = s.master_email!.split("|").find(p => p.includes("@"))?.trim() || s.master_email!;
+                              setEmailModal({ to: email, subject: `Sample Clearance Inquiry — "${s.song_title}" by ${s.artist}`, body: "" });
+                            }} className="font-mono text-xs text-[var(--success)] hover:opacity-70">Email</button>
+                          )}
                           <button onClick={() => startEditSong(s)} className="font-mono text-xs text-[var(--info)] hover:opacity-70">Edit</button>
                           <button onClick={() => deleteSong(s.id)} className="font-mono text-xs text-[var(--danger)] hover:opacity-70">Delete</button>
                         </div>
@@ -409,6 +463,9 @@ export default function AdminPage() {
                           )}
                         </div>
                         <div className="flex gap-3 shrink-0">
+                          {h.contact_email && (
+                            <button onClick={() => setEmailModal({ to: h.contact_email!, subject: `Sample Clearance Inquiry — ${h.name}`, body: "" })} className="font-mono text-xs text-[var(--success)] hover:opacity-70">Email</button>
+                          )}
                           <button onClick={() => startEditHolder(h)} className="font-mono text-xs text-[var(--info)] hover:opacity-70">Edit</button>
                           <button onClick={() => deleteHolder(h.id)} className="font-mono text-xs text-[var(--danger)] hover:opacity-70">Delete</button>
                         </div>
@@ -481,6 +538,36 @@ export default function AdminPage() {
 {`name,type,contact_email,contact_phone,website
 "Warner Chappell","publisher","licensing@warnerchappell.com","","warnerchappell.com"`}
               </pre>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email compose modal */}
+      {emailModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setEmailModal(null)}>
+          <div className="bg-[var(--bg)] border border-[var(--border-active)] rounded-xl p-6 w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <p className="font-display font-bold text-lg text-[var(--text)] mb-4">Compose Email</p>
+            <div className="space-y-3">
+              <div>
+                <label className="font-mono text-xs text-[var(--text-dim)]">To</label>
+                <input className={inputClass} value={emailModal.to} onChange={(e) => setEmailModal({ ...emailModal, to: e.target.value })} />
+              </div>
+              <div>
+                <label className="font-mono text-xs text-[var(--text-dim)]">Subject</label>
+                <input className={inputClass} value={emailModal.subject} onChange={(e) => setEmailModal({ ...emailModal, subject: e.target.value })} />
+              </div>
+              <div>
+                <label className="font-mono text-xs text-[var(--text-dim)]">Body</label>
+                <textarea className={`${inputClass} resize-none`} rows={8} placeholder="Write your message..." value={emailModal.body} onChange={(e) => setEmailModal({ ...emailModal, body: e.target.value })} />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={sendEmail} disabled={sendingEmail || !emailModal.body} className={btnClass}>
+                  {sendingEmail ? "Sending..." : "Send Email"}
+                </button>
+                <button onClick={() => setEmailModal(null)} className="font-mono text-sm text-[var(--text-dim)] hover:text-[var(--text)]">Cancel</button>
+              </div>
+              <p className="font-mono text-xs text-[var(--text-dim)]">Sent from: noreply@clearthewax.com</p>
             </div>
           </div>
         </div>
