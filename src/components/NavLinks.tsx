@@ -1,0 +1,69 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getAuthClient } from "@/lib/supabase";
+
+export default function NavLinks() {
+  const router = useRouter();
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = getAuthClient();
+    if (!supabase) return;
+
+    supabase.auth.getSession().then(({ data }) => {
+      setLoggedIn(!!data.session);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setLoggedIn(!!session);
+      }
+    );
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = getAuthClient();
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    router.push("/");
+  };
+
+  return (
+    <div className="flex items-center gap-6">
+      <Link
+        href="/about"
+        className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
+      >
+        about
+      </Link>
+      {loggedIn ? (
+        <>
+          <Link
+            href="/dashboard"
+            className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
+          >
+            pipeline
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
+          >
+            sign out
+          </button>
+        </>
+      ) : (
+        <Link
+          href="/login"
+          className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
+        >
+          login
+        </Link>
+      )}
+    </div>
+  );
+}

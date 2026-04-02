@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Syne, DM_Mono } from "next/font/google";
 import Link from "next/link";
+import NavLinks from "@/components/NavLinks";
 import "./globals.css";
 
 const syne = Syne({
@@ -40,20 +41,7 @@ export default function RootLayout({
           >
             Clear the Wax
           </Link>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/about"
-              className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
-            >
-              about
-            </Link>
-            <Link
-              href="/login"
-              className="font-mono text-sm text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
-            >
-              login
-            </Link>
-          </div>
+          <NavLinks />
         </nav>
         {children}
       </body>

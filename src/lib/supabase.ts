@@ -26,3 +26,11 @@ export function createServerClient(): SupabaseClient {
   }
   return _serverClient;
 }
+
+export function getAuthClient(): SupabaseClient | null {
+  try {
+    return getSupabase();
+  } catch {
+    return null;
+  }
+}
