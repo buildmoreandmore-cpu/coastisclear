@@ -68,6 +68,8 @@ export default function AdminPage() {
   const [editHolder, setEditHolder] = useState({ name: "", type: "", contact_email: "", contact_phone: "", website: "" });
   const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
   const [editRequest, setEditRequest] = useState({ song_title: "", artist: "", source: "" });
+  const [addingFromRequestId, setAddingFromRequestId] = useState<string | null>(null);
+  const [addFromRequest, setAddFromRequest] = useState({ song_title: "", artist: "", master_owner: "", master_contact: "", master_email: "", publisher_name: "", publisher_admin: "", publisher_contact: "", writer: "", isrc: "", notes: "" });
 
   useEffect(() => {
     const supabase = getAuthClient();
@@ -492,7 +494,62 @@ export default function AdminPage() {
             <div className="space-y-2">
               {requests.map((r) => (
                 <div key={r.id} className="bg-[var(--surface)] rounded-lg overflow-hidden">
-                  {editingRequestId === r.id ? (
+                  {/* Adding song from this request */}
+                  {addingFromRequestId === r.id ? (
+                    <div className="px-4 py-4 space-y-3">
+                      <p className="font-display font-bold text-sm text-[var(--text)]">Add to Database: {r.song_title} — {r.artist}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input className={editInputClass} placeholder="Song title *" value={addFromRequest.song_title} onChange={(e) => setAddFromRequest({ ...addFromRequest, song_title: e.target.value })} />
+                        <input className={editInputClass} placeholder="Artist *" value={addFromRequest.artist} onChange={(e) => setAddFromRequest({ ...addFromRequest, artist: e.target.value })} />
+                        <input className={editInputClass} placeholder="Master owner (label)" value={addFromRequest.master_owner} onChange={(e) => setAddFromRequest({ ...addFromRequest, master_owner: e.target.value })} />
+                        <input className={editInputClass} placeholder="Master contact dept" value={addFromRequest.master_contact} onChange={(e) => setAddFromRequest({ ...addFromRequest, master_contact: e.target.value })} />
+                        <input className={editInputClass} placeholder="Master phone/email" value={addFromRequest.master_email} onChange={(e) => setAddFromRequest({ ...addFromRequest, master_email: e.target.value })} />
+                        <input className={editInputClass} placeholder="Publisher name" value={addFromRequest.publisher_name} onChange={(e) => setAddFromRequest({ ...addFromRequest, publisher_name: e.target.value })} />
+                        <input className={editInputClass} placeholder="Publisher admin" value={addFromRequest.publisher_admin} onChange={(e) => setAddFromRequest({ ...addFromRequest, publisher_admin: e.target.value })} />
+                        <input className={editInputClass} placeholder="Publisher contact" value={addFromRequest.publisher_contact} onChange={(e) => setAddFromRequest({ ...addFromRequest, publisher_contact: e.target.value })} />
+                        <input className={editInputClass} placeholder="Writer(s)" value={addFromRequest.writer} onChange={(e) => setAddFromRequest({ ...addFromRequest, writer: e.target.value })} />
+                        <input className={editInputClass} placeholder="ISRC" value={addFromRequest.isrc} onChange={(e) => setAddFromRequest({ ...addFromRequest, isrc: e.target.value })} />
+                      </div>
+                      <textarea className={`${editInputClass} resize-none`} rows={2} placeholder="Notes" value={addFromRequest.notes} onChange={(e) => setAddFromRequest({ ...addFromRequest, notes: e.target.value })} />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async () => {
+                            if (!addFromRequest.song_title || !addFromRequest.artist) return;
+                            const res = await fetch("/api/admin/songs", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                song_title: addFromRequest.song_title,
+                                artist: addFromRequest.artist,
+                                master_owner: addFromRequest.master_owner || null,
+                                master_contact: addFromRequest.master_contact || null,
+                                master_email: addFromRequest.master_email || null,
+                                publisher_name: addFromRequest.publisher_name || null,
+                                publisher_admin: addFromRequest.publisher_admin || null,
+                                publisher_contact: addFromRequest.publisher_contact || null,
+                                writer: addFromRequest.writer || null,
+                                isrc: addFromRequest.isrc || null,
+                                notes: addFromRequest.notes || null,
+                              }),
+                            });
+                            if (res.ok) {
+                              flash("Song added to database");
+                              setAddingFromRequestId(null);
+                              fetchSongs();
+                              fetchRequests();
+                            } else {
+                              const d = await res.json();
+                              flash(d.error || "Failed to add");
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-[var(--accent)] text-[var(--bg)] font-mono text-xs rounded hover:opacity-80"
+                        >
+                          Add to Database
+                        </button>
+                        <button onClick={() => setAddingFromRequestId(null)} className="px-3 py-1.5 border border-[var(--border)] text-[var(--text-dim)] font-mono text-xs rounded hover:opacity-80">Cancel</button>
+                      </div>
+                    </div>
+                  ) : editingRequestId === r.id ? (
                     <div className="px-4 py-3 space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -533,7 +590,10 @@ export default function AdminPage() {
                       <div className="flex items-center gap-3 shrink-0">
                         {!r.found_in_db && (
                           <button
-                            onClick={() => { setSongTitle(r.song_title); setSongArtist(r.artist); setTab("songs"); }}
+                            onClick={() => {
+                              setAddingFromRequestId(r.id);
+                              setAddFromRequest({ song_title: r.song_title, artist: r.artist, master_owner: "", master_contact: "", master_email: "", publisher_name: "", publisher_admin: "", publisher_contact: "", writer: "", isrc: "", notes: "" });
+                            }}
                             className="font-mono text-xs text-[var(--info)] hover:opacity-70"
                           >
                             + Add
