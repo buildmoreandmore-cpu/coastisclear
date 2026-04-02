@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getAuthClient } from "@/lib/supabase";
 
-type Mode = "signin" | "signup" | "confirm" | "forgot" | "reset-sent";
+type Mode = "signin" | "signup" | "forgot" | "reset-sent";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
   useEffect(() => {
     const supabase = getAuthClient();
@@ -47,7 +48,11 @@ export default function LoginPage() {
     if (err) {
       setError(err.message);
     } else {
-      setMode("confirm");
+      setShowConfirmPopup(true);
+      setTimeout(() => {
+        setMode("signin");
+        setPassword("");
+      }, 500);
     }
   };
 
@@ -96,30 +101,6 @@ export default function LoginPage() {
       setMode("reset-sent");
     }
   };
-
-  if (mode === "confirm") {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6">
-        <div className="w-full max-w-sm text-center space-y-3">
-          <p className="font-display font-bold text-xl text-[var(--text)]">
-            Check your email
-          </p>
-          <p className="font-mono text-sm text-[var(--text-mid)]">
-            We sent a confirmation link to {email}
-          </p>
-          <p className="font-mono text-xs text-[var(--text-dim)]">
-            Click the link to activate your account, then come back and sign in.
-          </p>
-          <button
-            onClick={() => setMode("signin")}
-            className="mt-6 font-mono text-xs text-[var(--text-mid)] hover:text-[var(--text)] transition-colors"
-          >
-            Back to sign in
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (mode === "reset-sent") {
     return (
@@ -252,6 +233,33 @@ export default function LoginPage() {
           )}
         </div>
       </div>
+
+      {/* Email confirmation popup */}
+      {showConfirmPopup && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
+          <div className="bg-[var(--surface)] border border-[var(--border-active)] rounded-xl px-5 py-4 shadow-lg max-w-sm">
+            <div className="flex gap-3">
+              <span className="text-lg shrink-0 mt-0.5">&#9993;</span>
+              <div>
+                <p className="font-display font-bold text-sm text-[var(--text)]">
+                  Check your email to confirm
+                </p>
+                <p className="font-mono text-xs text-[var(--text-mid)] mt-1 leading-relaxed">
+                  You&apos;ve successfully signed up. Please check your email to
+                  confirm your account before signing in. The confirmation link
+                  expires in 10 minutes.
+                </p>
+                <button
+                  onClick={() => { setShowConfirmPopup(false); setMode("signin"); }}
+                  className="font-mono text-xs text-[var(--text-dim)] hover:text-[var(--text)] mt-2 underline transition-colors"
+                >
+                  Sign in
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
