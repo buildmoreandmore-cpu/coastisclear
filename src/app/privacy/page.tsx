@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         </p>
 
         <h2 className="font-display font-bold text-lg text-[var(--text)] mt-8">1. Information We Collect</h2>
-        <p><strong className="text-[var(--text)]">Account Information:</strong> When you sign up, we collect your email address and password (stored securely via Supabase Auth).</p>
+        <p><strong className="text-[var(--text)]">Account Information:</strong> When you sign up, we collect your email address and password, stored securely using industry-standard authentication.</p>
         <p><strong className="text-[var(--text)]">Search Data:</strong> We log the song titles and artist names you search for to improve our database. This data is not shared with third parties.</p>
         <p><strong className="text-[var(--text)]">Pipeline Data:</strong> Clearance pipeline items you create are stored in your account.</p>
 
@@ -28,21 +28,17 @@ export default function PrivacyPage() {
         <h2 className="font-display font-bold text-lg text-[var(--text)] mt-8">3. Data Sharing</h2>
         <p>
           We do not sell, rent, or share your personal information with third
-          parties for marketing purposes. We may share data with:
+          parties for marketing purposes. We may share limited data with
+          trusted service providers (hosting, authentication, email delivery)
+          solely to operate the service. These providers are contractually
+          bound to protect your data.
         </p>
-        <ul className="list-disc list-inside space-y-1">
-          <li><strong className="text-[var(--text)]">Supabase:</strong> Database and authentication provider</li>
-          <li><strong className="text-[var(--text)]">Vercel:</strong> Hosting provider</li>
-          <li><strong className="text-[var(--text)]">Resend:</strong> Transactional email provider</li>
-          <li><strong className="text-[var(--text)]">MiniMax:</strong> AI inference for ownership identification</li>
-        </ul>
 
         <h2 className="font-display font-bold text-lg text-[var(--text)] mt-8">4. Data Security</h2>
         <p>
           We use industry-standard security measures including encrypted
-          connections (HTTPS), secure authentication (Supabase Auth), and
-          access controls. However, no method of transmission over the internet
-          is 100% secure.
+          connections (HTTPS), secure authentication, and access controls.
+          However, no method of transmission over the internet is 100% secure.
         </p>
 
         <h2 className="font-display font-bold text-lg text-[var(--text)] mt-8">5. Data Retention</h2>
@@ -64,7 +60,7 @@ export default function PrivacyPage() {
 
         <h2 className="font-display font-bold text-lg text-[var(--text)] mt-8">7. Cookies</h2>
         <p>
-          We use essential cookies for authentication (Supabase session tokens).
+          We use essential cookies for authentication and session management.
           We do not use tracking cookies or third-party analytics.
         </p>
 
