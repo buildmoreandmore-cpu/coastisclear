@@ -1,8 +1,11 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
-function getClient(): Anthropic | null {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  return new Anthropic();
+function getClient(): OpenAI | null {
+  if (!process.env.MINIMAX_API_KEY) return null;
+  return new OpenAI({
+    apiKey: process.env.MINIMAX_API_KEY,
+    baseURL: "https://api.minimax.io/v1",
+  });
 }
 
 interface OwnershipContext {
@@ -44,8 +47,8 @@ export async function inferOwnership(
       ? `\nPartial data already found:\n${JSON.stringify(context.partialData, null, 2)}`
       : "";
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+    const response = await client.chat.completions.create({
+      model: "MiniMax-M2",
       max_tokens: 1024,
       messages: [
         {
@@ -77,14 +80,13 @@ Base your inference on known industry relationships, catalog ownership history, 
       ],
     });
 
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "";
+    const text = response.choices[0]?.message?.content || "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
 
     return JSON.parse(jsonMatch[0]) as OwnershipInference;
-  } catch {
-    console.error("Claude inference failed");
+  } catch (e) {
+    console.error("MiniMax inference failed:", e);
     return null;
   }
 }
@@ -173,13 +175,14 @@ export async function generateLetter(context: LetterContext): Promise<string> {
     ? `\nSample use description: ${context.sampleUseDescription}`
     : "";
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1024,
-    messages: [
-      {
-        role: "user",
-        content: `You are a music industry clearance specialist. Draft a professional sample clearance request letter for the ${context.rightsType} rights.
+  try {
+    const response = await client.chat.completions.create({
+      model: "MiniMax-M2",
+      max_tokens: 1024,
+      messages: [
+        {
+          role: "user",
+          content: `You are a music industry clearance specialist. Draft a professional sample clearance request letter for the ${context.rightsType} rights.
 
 Artist's new song: "${context.newSongTitle}"
 Original track sampled: "${context.sampledSongTitle}" by ${context.originalArtist}
@@ -205,9 +208,12 @@ The letter should:
 9. Leave placeholders for: [ARTIST NAME], [RELEASE DATE], [LABEL/DISTRIBUTOR], [ATTORNEY NAME]
 
 Output the letter only. No preamble. No explanation.`,
-      },
-    ],
-  });
+        },
+      ],
+    });
 
-  return response.content[0].type === "text" ? response.content[0].text : "";
+    return response.choices[0]?.message?.content || generateDemoLetter(context);
+  } catch {
+    return generateDemoLetter(context);
+  }
 }
