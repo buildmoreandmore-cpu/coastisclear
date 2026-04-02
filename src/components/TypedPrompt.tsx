@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface TypedPromptProps {
   text: string;
@@ -16,6 +16,9 @@ export default function TypedPrompt({
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
 
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   useEffect(() => {
     setDisplayed("");
     setDone(false);
@@ -27,11 +30,11 @@ export default function TypedPrompt({
       } else {
         clearInterval(interval);
         setDone(true);
-        onComplete?.();
+        onCompleteRef.current?.();
       }
     }, speed);
     return () => clearInterval(interval);
-  }, [text, speed, onComplete]);
+  }, [text, speed]);
 
   return (
     <p className="font-display font-bold text-xl sm:text-2xl text-[var(--accent)] leading-relaxed">
