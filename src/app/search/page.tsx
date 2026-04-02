@@ -857,20 +857,31 @@ const TextInput = forwardRef<
 
   return (
     <div className="mt-6 animate-fade-in-up w-full">
-      <input
-        ref={ref}
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            onSubmit(value);
-          }
-        }}
-        className="w-full bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-[var(--text)] text-center"
-      />
+      <div className="flex items-center gap-2">
+        <input
+          ref={ref}
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onSubmit(value);
+            }
+          }}
+          className="flex-1 bg-transparent border-none outline-none font-mono text-lg text-[var(--text)] placeholder:text-[var(--text-dim)] caret-[var(--text)] text-center"
+        />
+        {value.trim() && (
+          <button
+            onClick={() => onSubmit(value)}
+            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg)] hover:opacity-80 transition-opacity"
+            aria-label="Next"
+          >
+            &rarr;
+          </button>
+        )}
+      </div>
     </div>
   );
 });
