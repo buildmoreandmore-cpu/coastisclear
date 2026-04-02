@@ -108,6 +108,38 @@ export function usePipeline() {
     [updateItem]
   );
 
+  const undoStep = useCallback(
+    (
+      itemId: string,
+      rightsType: "master" | "publishing",
+      stepNumber: number
+    ) => {
+      updateItem(itemId, (item) => {
+        const side = rightsType === "master" ? item.master : item.publishing;
+        const newSteps = side.steps.map((s) =>
+          s.stepNumber === stepNumber
+            ? { ...s, completed: false, completedAt: undefined, completedBy: undefined }
+            : s
+        );
+        const newLog: ActivityLogEntry = {
+          action: `Step ${stepNumber} undone: ${side.steps.find(s => s.stepNumber === stepNumber)?.stepName}`,
+          rightsType,
+          stepNumber,
+          performedBy: "you",
+          performedAt: new Date().toISOString(),
+        };
+
+        return {
+          ...item,
+          [rightsType]: { ...side, steps: newSteps },
+          activityLog: [...item.activityLog, newLog],
+          updatedAt: new Date().toISOString(),
+        };
+      });
+    },
+    [updateItem]
+  );
+
   const updateLetters = useCallback(
     (itemId: string, masterLetter: string, publishingLetter: string) => {
       updateItem(itemId, (item) => ({
@@ -141,6 +173,7 @@ export function usePipeline() {
     updateItem,
     removeItem,
     advanceStep,
+    undoStep,
     updateSideStatus,
     updateLetters,
     setQuoteExpiration,

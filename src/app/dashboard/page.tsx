@@ -12,7 +12,7 @@ import type { PipelineItem } from "@/types";
 export default function DashboardPage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
-  const { items, loaded, advanceStep, removeItem, updateLetters } = usePipeline();
+  const { items, loaded, advanceStep, undoStep, removeItem, updateLetters } = usePipeline();
 
   // Letter modal state
   const [letterModalOpen, setLetterModalOpen] = useState(false);
@@ -179,6 +179,7 @@ export default function DashboardPage() {
               key={item.id}
               item={item}
               onAdvanceStep={advanceStep}
+              onUndoStep={undoStep}
               onDelete={removeItem}
               onViewLetter={handleViewLetter}
               onRegenerateLetter={handleRegenerateLetter}

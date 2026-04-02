@@ -14,6 +14,11 @@ interface PipelineCardProps {
     rightsType: "master" | "publishing",
     stepNumber: number
   ) => void;
+  onUndoStep: (
+    itemId: string,
+    rightsType: "master" | "publishing",
+    stepNumber: number
+  ) => void;
   onDelete: (id: string) => void;
   onViewLetter: (item: PipelineItem) => void;
   onRegenerateLetter: (item: PipelineItem) => void;
@@ -28,7 +33,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   not_started: { label: "NOT STARTED", color: "var(--text-dim)" },
 };
 
-export default function PipelineCard({ item, onAdvanceStep, onDelete, onViewLetter, onRegenerateLetter }: PipelineCardProps) {
+export default function PipelineCard({ item, onAdvanceStep, onUndoStep, onDelete, onViewLetter, onRegenerateLetter }: PipelineCardProps) {
   const [expanded, setExpanded] = useState(false);
   const combined = getCombinedStatus(item);
   const statusInfo = STATUS_LABELS[combined] || STATUS_LABELS.not_started;
@@ -91,6 +96,7 @@ export default function PipelineCard({ item, onAdvanceStep, onDelete, onViewLett
               steps={item.master.steps}
               rightsType="master"
               onAdvance={(step) => onAdvanceStep(item.id, "master", step)}
+              onUndo={(step) => onUndoStep(item.id, "master", step)}
             />
           )}
 
@@ -100,6 +106,7 @@ export default function PipelineCard({ item, onAdvanceStep, onDelete, onViewLett
             steps={item.publishing.steps}
             rightsType="publishing"
             onAdvance={(step) => onAdvanceStep(item.id, "publishing", step)}
+            onUndo={(step) => onUndoStep(item.id, "publishing", step)}
           />
 
           <div className="border-t border-[var(--border)]" />

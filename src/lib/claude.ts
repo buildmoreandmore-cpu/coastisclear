@@ -120,39 +120,38 @@ function generateDemoLetter(context: LetterContext): string {
   const contactLine = context.contactName
     ? `${context.contactName}\n${context.department || "Sample Licensing"}\n${context.holderName}`
     : `Sample Licensing Department\n${context.holderName}`;
-  const writersLine = context.writers?.length ? `\nWritten by: ${context.writers.join(", ")}` : "";
-  const publisherLine = context.publisher ? `\nPublisher: ${context.publisher}` : "";
-  const adminLine = context.administrator ? ` (administered by ${context.administrator})` : "";
+  const writersLine = context.writers?.length ? ` (writers: ${context.writers.join(", ")})` : "";
   const timingLine = context.originalTimingStart && context.originalTimingEnd
-    ? `The portion sampled runs from approximately ${context.originalTimingStart} to ${context.originalTimingEnd} in the original recording.`
+    ? `\n\nThe sample is taken from approximately ${context.originalTimingStart} to ${context.originalTimingEnd} in the original recording.`
     : "";
   const newTimingLine = context.newTimingStart && context.newTimingEnd
     ? ` In the new composition, the sample appears from ${context.newTimingStart} to ${context.newTimingEnd}.`
     : "";
-  const useLine = context.sampleUseDescription || "";
   const distLine = context.distributorName ? ` through ${context.distributorName}` : "";
+  const releaseType = context.releaseContext === "self_released" ? "self-released" : (context.releaseContext || context.intendedUse.toLowerCase());
 
   return `${date}
 
 ${contactLine}
-
-RE: Sample Clearance Request — ${context.rightsType === "master" ? "Master Recording" : "Publishing/Composition"} Rights
+[Address]
 
 Dear ${context.contactName || "Licensing Department"},
 
-I am writing to formally request clearance for the use of a sample from "${context.sampledSongTitle}" by ${context.originalArtist} in a new composition titled "${context.newSongTitle}" by [ARTIST NAME].${writersLine}${publisherLine}${adminLine}
+I am writing to request permission to sample the track "${context.sampledSongTitle}" by ${context.originalArtist}${writersLine} for use in the upcoming [ARTIST NAME] track titled "${context.newSongTitle}."
 
-${timingLine}${newTimingLine}${useLine ? ` The sample is used as follows: ${useLine}` : ""}
+The sample will be used in a ${context.intendedUse.toLowerCase()} capacity, with a ${releaseType} distribution planned for [RELEASE DATE]${distLine}. This release is intended for digital platforms only.${timingLine}${newTimingLine}
 
-The new track is intended for ${context.intendedUse.toLowerCase()} release${context.releaseContext ? ` (${context.releaseContext})` : ""}${distLine}. The anticipated release date is [RELEASE DATE].
+We would greatly appreciate any information regarding:
 
-We are requesting a quote for the ${context.rightsType === "master" ? "master use" : "mechanical and synchronization"} license for this sample. We are open to discussing terms including flat fee, royalty participation, or a combination thereof, and are prepared to negotiate in good faith.
+- The current ${context.rightsType === "master" ? "master recording owner" : "publisher and/or rights holder"} for "${context.sampledSongTitle}" by ${context.originalArtist}
+- ${context.rightsType === "master" ? "Any associated publishing rights that may need to be cleared" : "Any associated master recording rights that may need to be cleared"}
+- A quote for the sample clearance or proposed terms for our use
 
-Please let us know your standard clearance terms, including any applicable fees, royalty splits, credit requirements, and territory/term restrictions.
+We are committed to a fair and transparent negotiation and are open to discussing terms that reflect the scope of this project. Please let us know if you require any additional materials, such as a reference copy of our track or documentation regarding our intended use.
 
-We appreciate your time and look forward to your response. Please feel free to reach out with any questions.
+We look forward to your response and hope to resolve this matter promptly.
 
-Respectfully,
+Sincerely,
 
 [ARTIST NAME]
 [ATTORNEY NAME]
