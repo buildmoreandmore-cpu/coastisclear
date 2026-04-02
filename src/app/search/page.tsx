@@ -74,36 +74,56 @@ function SearchPage() {
   const router = useRouter();
   const initialSong = searchParams.get("song") || "";
 
+  const STORAGE_KEY = "clearthewax_search_state";
+
   const requireAuth = async (onAuthed: () => void) => {
     const supabase = getAuthClient();
-    if (!supabase) { router.push("/login?redirect=/search"); return; }
+    if (!supabase) {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      router.push("/login?redirect=/search");
+      return;
+    }
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       router.push("/login?redirect=/search");
     } else {
       onAuthed();
     }
   };
 
-  const [state, setState] = useState<SearchState>({
-    step: 0,
-    requestorName: "",
-    requestorCompany: "",
-    newSongTitle: "",
-    sampledSongTitle: initialSong,
-    originalArtist: "",
-    referenceUrl: "",
-    originalTimingStart: "",
-    originalTimingEnd: "",
-    newTimingStart: "",
-    newTimingEnd: "",
-    sampleUseDescription: "",
-    sampleUseTags: [],
-    intendedUse: "",
-    releaseContext: "",
-    distributorName: "",
-    lookupResults: null,
-    lookupStatus: "idle",
+  const [state, setState] = useState<SearchState>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        sessionStorage.removeItem(STORAGE_KEY);
+        try {
+          const parsed = JSON.parse(saved) as SearchState;
+          // Restore to results page (step 4) so they see their results
+          return { ...parsed, step: 4, lookupStatus: "done" };
+        } catch { /* fall through */ }
+      }
+    }
+    return {
+      step: 0,
+      requestorName: "",
+      requestorCompany: "",
+      newSongTitle: "",
+      sampledSongTitle: initialSong,
+      originalArtist: "",
+      referenceUrl: "",
+      originalTimingStart: "",
+      originalTimingEnd: "",
+      newTimingStart: "",
+      newTimingEnd: "",
+      sampleUseDescription: "",
+      sampleUseTags: [],
+      intendedUse: "",
+      releaseContext: "",
+      distributorName: "",
+      lookupResults: null,
+      lookupStatus: "idle",
+    };
   });
 
   const [typingDone, setTypingDone] = useState(false);
