@@ -378,7 +378,7 @@ function SearchPage() {
       // Step 0: Song title
       case 0:
         return (
-          <StepContainer key={0}>
+          <StepContainer stepKey={0}>
             <TypedPrompt text="What song are you sampling?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -394,7 +394,7 @@ function SearchPage() {
       // Step 1: Artist
       case 1:
         return (
-          <StepContainer key={1}>
+          <StepContainer stepKey={1}>
             <TypedPrompt text="Who's the original artist?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -409,7 +409,7 @@ function SearchPage() {
       // Step 2: Reference link (optional)
       case 2:
         return (
-          <StepContainer key={2}>
+          <StepContainer stepKey={2}>
             <TypedPrompt text="Drop a link to the original track." onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-3">
@@ -436,7 +436,7 @@ function SearchPage() {
           return null;
         }
         return (
-          <StepContainer key={3}>
+          <StepContainer stepKey={3}>
             <ScanningState
               phases={[
                 "Searching verified rights database...",
@@ -456,7 +456,7 @@ function SearchPage() {
       case 4: {
         const results = state.lookupResults;
         return (
-          <StepContainer key={3}>
+          <StepContainer stepKey={4}>
             <TypedPrompt
               text={`Here's what we found for "${state.sampledSongTitle}" by ${state.originalArtist}.`}
               onComplete={onTypingComplete}
@@ -576,7 +576,7 @@ function SearchPage() {
       // Step 5: Your name
       case 5:
         return (
-          <StepContainer key={5}>
+          <StepContainer stepKey={5}>
             <TypedPrompt text="What's your name?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -592,7 +592,7 @@ function SearchPage() {
       // Step 6: Company
       case 6:
         return (
-          <StepContainer key={6}>
+          <StepContainer stepKey={6}>
             <TypedPrompt text="What label or company are you with?" onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-3">
@@ -616,7 +616,7 @@ function SearchPage() {
       // Step 7: New song title
       case 7:
         return (
-          <StepContainer key={7}>
+          <StepContainer stepKey={7}>
             <TypedPrompt text="What's the name of your new song?" onComplete={onTypingComplete} />
             {typingDone && (
               <TextInput
@@ -631,7 +631,7 @@ function SearchPage() {
       // Step 8: Intended use
       case 8:
         return (
-          <StepContainer key={8}>
+          <StepContainer stepKey={8}>
             <TypedPrompt text="What's this for?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -648,7 +648,7 @@ function SearchPage() {
       // Step 9: Release context
       case 9:
         return (
-          <StepContainer key={9}>
+          <StepContainer stepKey={9}>
             <TypedPrompt text="Who's releasing this?" onComplete={onTypingComplete} />
             {typingDone && (
               <OptionPills
@@ -670,7 +670,7 @@ function SearchPage() {
       // Step 10: Original timing
       case 10:
         return (
-          <StepContainer key={10}>
+          <StepContainer stepKey={10}>
             <TypedPrompt
               text="Where in the original track does your sample start and end?"
               onComplete={onTypingComplete}
@@ -690,7 +690,7 @@ function SearchPage() {
       // Step 11: New timing
       case 11:
         return (
-          <StepContainer key={11}>
+          <StepContainer stepKey={11}>
             <TypedPrompt
               text="Where does this sample appear in your new track?"
               onComplete={onTypingComplete}
@@ -710,7 +710,7 @@ function SearchPage() {
       // Step 12: Sample use description + tags → then generate letter
       case 12:
         return (
-          <StepContainer key={12}>
+          <StepContainer stepKey={12}>
             <TypedPrompt text="Describe how you're using the sample." onComplete={onTypingComplete} />
             {typingDone && (
               <div className="mt-6 space-y-4">
@@ -760,7 +760,7 @@ function SearchPage() {
         // Distributor sub-step
         if (state.step === 9.5) {
           return (
-            <StepContainer key="9.5">
+            <StepContainer stepKey="9.5">
               <TypedPrompt text="Which one?" onComplete={onTypingComplete} />
               {typingDone && (
                 <TextInput
@@ -780,7 +780,7 @@ function SearchPage() {
         // Error state
         if (state.lookupStatus === "error") {
           return (
-            <StepContainer key="error">
+            <StepContainer stepKey="error">
               <p className="font-mono text-sm text-[var(--danger)]">
                 {state.errorMessage || "Something went wrong. Please try again."}
               </p>
@@ -852,10 +852,10 @@ function SearchPage() {
 
 // ─── Helper Components ───
 
-function StepContainer({ children, key: k }: { children: React.ReactNode; key: string | number }) {
+function StepContainer({ children, stepKey }: { children: React.ReactNode; stepKey: string | number }) {
   return (
     <motion.div
-      key={k}
+      key={stepKey}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
