@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 
+// Track which texts have already been typed so remounts show instantly
+const typedTexts = new Set<string>();
+
 interface TypedPromptProps {
   text: string;
   speed?: number;
@@ -13,13 +16,22 @@ export default function TypedPrompt({
   speed = 40,
   onComplete,
 }: TypedPromptProps) {
-  const [displayed, setDisplayed] = useState("");
-  const [done, setDone] = useState(false);
+  const alreadyTyped = typedTexts.has(text);
+  const [displayed, setDisplayed] = useState(alreadyTyped ? text : "");
+  const [done, setDone] = useState(alreadyTyped);
 
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
   useEffect(() => {
+    // If already typed this text before, show instantly
+    if (typedTexts.has(text)) {
+      setDisplayed(text);
+      setDone(true);
+      onCompleteRef.current?.();
+      return;
+    }
+
     setDisplayed("");
     setDone(false);
     let i = 0;
@@ -30,6 +42,7 @@ export default function TypedPrompt({
       } else {
         clearInterval(interval);
         setDone(true);
+        typedTexts.add(text);
         onCompleteRef.current?.();
       }
     }, speed);
@@ -47,4 +60,9 @@ export default function TypedPrompt({
       <span className="sr-only">{text}</span>
     </p>
   );
+}
+
+/** Call this to reset typed state (e.g. when starting a new search) */
+export function resetTypedPrompts() {
+  typedTexts.clear();
 }
