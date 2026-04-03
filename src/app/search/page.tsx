@@ -116,7 +116,7 @@ function SearchPage() {
       }
     }
     return {
-      step: 0,
+      step: initialSong ? 1 : 0,
       requestorName: userPrefs.requestorName || "",
       requestorCompany: userPrefs.requestorCompany || "",
       newSongTitle: "",
