@@ -149,6 +149,12 @@ export default function OwnershipCard({
           </Row>
         )}
 
+        {data.contactName && data.contactName.startsWith("Producer:") && (
+          <Row label="Producer">
+            <span className="text-[var(--text)]">{data.contactName.replace("Producer: ", "")}</span>
+          </Row>
+        )}
+
         {data.pro && (
           <Row label="PRO">
             <span className="text-[var(--text)]">

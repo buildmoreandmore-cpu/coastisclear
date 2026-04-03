@@ -12,12 +12,14 @@ interface MergeInput {
     master: {
       holder: string;
       label?: string;
+      producer?: string;
       confidence: "high" | "medium" | "low";
       reasoning: string;
     };
     publishing: {
       holder: string;
       publisher?: string;
+      administrator?: string;
       writers?: string[];
       confidence: "high" | "medium" | "low";
       reasoning: string;
@@ -55,6 +57,7 @@ export function mergeResults(input: MergeInput): LookupResponse {
       type: "master",
       confidence: claudeConfidenceToNumber(input.claude.master.confidence),
       source: "claude_inference",
+      contactName: input.claude.master.producer ? `Producer: ${input.claude.master.producer}` : undefined,
     };
   }
 
@@ -64,6 +67,7 @@ export function mergeResults(input: MergeInput): LookupResponse {
   } else if (input.claude?.publishing) {
     publishing = {
       holder: input.claude.publishing.holder,
+      administrator: input.claude.publishing.administrator,
       type: "publishing",
       confidence: claudeConfidenceToNumber(input.claude.publishing.confidence),
       source: "claude_inference",

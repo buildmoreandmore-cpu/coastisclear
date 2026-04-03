@@ -24,12 +24,14 @@ interface OwnershipInference {
   master: {
     holder: string;
     label?: string;
+    producer?: string;
     confidence: "high" | "medium" | "low";
     reasoning: string;
   };
   publishing: {
     holder: string;
     publisher?: string;
+    administrator?: string;
     writers?: string[];
     confidence: "high" | "medium" | "low";
     reasoning: string;
@@ -53,7 +55,7 @@ export async function inferOwnership(
       messages: [
         {
           role: "user",
-          content: `You are a music industry rights analyst. Given the following song information, infer the most likely master recording owner (label) and publishing rights holder (publisher).
+          content: `You are a music industry rights analyst. Given the following song information, identify the most likely master recording owner, publishing rights holder, producer(s), songwriter(s), and any known administrator.
 
 Song: "${context.songTitle}" by ${context.artist}
 ${partialInfo}
@@ -61,21 +63,25 @@ ${partialInfo}
 Return ONLY valid JSON in this exact format:
 {
   "master": {
-    "holder": "Label name",
+    "holder": "Label or entity that owns the master recording",
     "label": "Specific label imprint if known",
+    "producer": "Producer(s) of the recording if known",
     "confidence": "high" or "medium" or "low",
     "reasoning": "Brief explanation"
   },
   "publishing": {
-    "holder": "Publisher name",
-    "publisher": "Specific publishing entity",
-    "writers": ["Writer 1", "Writer 2"],
+    "holder": "Publishing company that controls the composition",
+    "publisher": "Specific publishing entity or imprint",
+    "administrator": "Company that administers the publishing rights if different from holder",
+    "writers": ["Songwriter 1", "Songwriter 2"],
     "confidence": "high" or "medium" or "low",
     "reasoning": "Brief explanation"
   }
 }
 
-Base your inference on known industry relationships, catalog ownership history, and public knowledge about this artist's deals. If you're unsure, say so in the reasoning and set confidence to "low".`,
+Be specific. Use actual company names, not generic descriptions like "estate or rights acquisition." For example, say "VP Records" not "parent company." Include the producer who made the track. List all known songwriters. If publishing has been acquired or administered by a major, name that entity. Base your inference on known industry relationships, catalog ownership history, and public knowledge about this artist's deals. If you're unsure, say so in the reasoning and set confidence to "low".
+
+Return ONLY the JSON. No preamble, no explanation, no thinking.`,
         },
       ],
     });
