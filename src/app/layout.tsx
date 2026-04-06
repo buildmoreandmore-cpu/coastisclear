@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Syne, DM_Mono } from "next/font/google";
 import Link from "next/link";
 import NavLinks from "@/components/NavLinks";
+import SiteGate from "@/components/SiteGate";
 import "./globals.css";
 
 const syne = Syne({
@@ -49,30 +50,32 @@ export default function RootLayout({
       <body
         className={`${syne.variable} ${dmMono.variable} antialiased`}
       >
-        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
-          <Link
-            href="/"
-            className="liquid-glass font-display font-extrabold text-xl tracking-tight hover:opacity-80 transition-opacity select-none"
-          >
-            Clear the Wax
-          </Link>
-          <NavLinks />
-        </nav>
-        {children}
-        <footer className="w-full py-6 flex items-center justify-center gap-4">
-          <a
-            href="/glossary"
-            className="font-mono text-[10px] text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors opacity-60 hover:opacity-90"
-          >
-            glossary
-          </a>
-          <a
-            href="/admin"
-            className="font-mono text-[10px] text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors opacity-40 hover:opacity-70"
-          >
-            admin
-          </a>
-        </footer>
+        <SiteGate>
+          <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
+            <Link
+              href="/"
+              className="liquid-glass font-display font-extrabold text-xl tracking-tight hover:opacity-80 transition-opacity select-none"
+            >
+              Clear the Wax
+            </Link>
+            <NavLinks />
+          </nav>
+          {children}
+          <footer className="w-full py-6 flex items-center justify-center gap-4">
+            <a
+              href="/glossary"
+              className="font-mono text-[10px] text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors opacity-60 hover:opacity-90"
+            >
+              glossary
+            </a>
+            <a
+              href="/admin"
+              className="font-mono text-[10px] text-[var(--text-dim)] hover:text-[var(--text-mid)] transition-colors opacity-40 hover:opacity-70"
+            >
+              admin
+            </a>
+          </footer>
+        </SiteGate>
       </body>
     </html>
   );
