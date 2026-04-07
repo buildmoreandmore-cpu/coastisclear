@@ -158,6 +158,16 @@ CREATE TABLE clearance_letters (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- NDA acceptances
+CREATE TABLE nda_acceptances (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name TEXT NOT NULL,
+  accepted_at TIMESTAMPTZ DEFAULT now(),
+  ip_address TEXT,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
 -- Full-text search indexes
 CREATE INDEX idx_song_ownership_title ON song_ownership
   USING gin (to_tsvector('english', song_title));

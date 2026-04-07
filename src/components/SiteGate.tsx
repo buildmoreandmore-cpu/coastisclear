@@ -47,6 +47,13 @@ export default function SiteGate({ children }: { children: React.ReactNode }) {
     };
     localStorage.setItem(ACCESS_KEY, JSON.stringify(record));
     setGate("granted");
+
+    // Save to database (non-blocking)
+    fetch("/api/admin/nda", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: sigName.trim(), acceptedAt: record.acceptedAt }),
+    }).catch(() => {});
   };
 
   const today = new Date().toLocaleDateString("en-US", {

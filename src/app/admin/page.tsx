@@ -9,7 +9,7 @@ const ADMIN_EMAILS = [
   "morian@aaemgmt.com",
 ];
 
-type Tab = "songs" | "rights-holders" | "search-requests" | "import";
+type Tab = "songs" | "rights-holders" | "search-requests" | "nda" | "import";
 
 interface Song {
   id: string;
@@ -56,6 +56,7 @@ export default function AdminPage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [holders, setHolders] = useState<RightsHolder[]>([]);
   const [requests, setRequests] = useState<SearchRequest[]>([]);
+  const [ndaRecords, setNdaRecords] = useState<{ id: string; full_name: string; accepted_at: string; ip_address?: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -117,9 +118,14 @@ export default function AdminPage() {
     setRequests(await res.json());
   }, []);
 
+  const fetchNda = useCallback(async () => {
+    const res = await fetch("/api/admin/nda");
+    setNdaRecords(await res.json());
+  }, []);
+
   useEffect(() => {
-    fetchSongs(); fetchHolders(); fetchRequests();
-  }, [fetchSongs, fetchHolders, fetchRequests]);
+    fetchSongs(); fetchHolders(); fetchRequests(); fetchNda();
+  }, [fetchSongs, fetchHolders, fetchRequests, fetchNda]);
 
   const flash = (msg: string) => {
     setMessage(msg);
@@ -266,6 +272,7 @@ export default function AdminPage() {
     { key: "songs", label: "Songs" },
     { key: "rights-holders", label: "Rights Holders" },
     { key: "search-requests", label: "Search Requests", badge: requests.filter((r) => !r.found_in_db).length },
+    { key: "nda", label: "NDA", badge: ndaRecords.length },
     { key: "import", label: "CSV Import" },
   ];
 
@@ -623,6 +630,32 @@ export default function AdminPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* NDA Acceptances Tab */}
+      {tab === "nda" && (
+        <div>
+          <p className="font-display font-bold text-lg text-[var(--text)] mb-1">NDA Acceptances</p>
+          <p className="font-mono text-xs text-[var(--text-dim)] mb-4">Users who accepted the Confidential Access &amp; Nondisclosure Agreement</p>
+          {ndaRecords.length === 0 ? (
+            <p className="font-mono text-sm text-[var(--text-dim)]">No acceptances yet</p>
+          ) : (
+            <div className="space-y-2">
+              {ndaRecords.map((r) => (
+                <div key={r.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-4 py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-mono text-sm text-[var(--text)] font-bold">{r.full_name}</p>
+                    <p className="font-mono text-xs text-[var(--text-dim)]">
+                      {new Date(r.accepted_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                      {r.ip_address && r.ip_address !== "unknown" && ` · ${r.ip_address}`}
+                    </p>
+                  </div>
+                  <span className="font-mono text-xs text-[var(--success)]">Signed</span>
                 </div>
               ))}
             </div>
